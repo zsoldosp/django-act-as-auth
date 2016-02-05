@@ -65,6 +65,10 @@ class ActAsModelBackendTestCase(TransactionTestCase):
         self.assertEqual(None, ActAsModelBackend().authenticate(username='admin/user', password='user password'))
         self.assertEqual(user, ActAsModelBackend().authenticate(username='admin/user', password='admin password'))
 
+    def test_cannot_become_nonexistent_user(self):
+        admin = self.create_user(username='admin', password='password')
+        self.assertEqual(None, ActAsModelBackend().authenticate(username='admin/user', password='password'))
+
 
 ###
 
