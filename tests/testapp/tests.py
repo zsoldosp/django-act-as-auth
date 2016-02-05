@@ -1,5 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
+from django.contrib.auth import signals as auth_signals
 from django.test import TransactionTestCase
 
 from djactasauth.backends import FilteredModelBackend, ActAsModelBackend
@@ -68,6 +69,21 @@ class ActAsModelBackendTestCase(TransactionTestCase):
     def test_cannot_become_nonexistent_user(self):
         admin = self.create_user(username='admin', password='password')
         self.assertEqual(None, ActAsModelBackend().authenticate(username='admin/user', password='password'))
+
+    def test_authenticate_does_not_fire_login_signal(self):
+        def should_not_fire_login_signal(user, **kwargs):
+            self.fail(
+                'should not have fired login signal but did for %r' % user)
+
+        admin = self.create_user(username='admin', password='admin password')
+        user = self.create_user(username='user', password='user password')
+
+        auth_signals.user_logged_in.connect(should_not_fire_login_signal)
+        try:
+            ActAsModelBackend().authenticate(username='admin/user', password='admin password')
+        finally:
+            auth_signals.user_logged_in.disconnect(should_not_fire_login_signal)
+        self.assertEqual(user, ActAsModelBackend().authenticate(username='admin/user', password='admin password'))
 
 
 ###
