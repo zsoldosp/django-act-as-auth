@@ -1,3 +1,4 @@
+from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
 
@@ -5,6 +6,11 @@ from djactasauth.backends import FilteredModelBackend
 
 
 class FilteredBackendTestCase(TransactionTestCase):
+
+    def test_it_is_a_model_backend(self):
+        self.assertTrue(
+            issubclass(FilteredModelBackend, ModelBackend),
+            FilteredModelBackend.__mro__)
 
     def test_can_declare_filters_which_apply_to_get_user(self):
         staff = User.objects.create(username='staff', is_staff=True, is_superuser=False)
