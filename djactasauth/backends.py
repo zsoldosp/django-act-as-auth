@@ -35,14 +35,26 @@ class ActAsModelBackend(FilteredModelBackend):
         else:
             auth_username = act_as_username = username
 
-        user = super(ActAsModelBackend, self).authenticate(
+        auth_user = super(ActAsModelBackend, self).authenticate(
                 username=auth_username, password=password, **kwargs)
-        if not user:
-            return user
+        if not auth_user:
+            return auth_user
         if auth_username != act_as_username:
             UserModel = get_user_model()
             try:
                 user = UserModel._default_manager.get_by_natural_key(act_as_username)
             except UserModel.DoesNotExist:
                 user = None
+            if not self.can_act_as(auth_user=auth_user, user=user):
+                return None
+        else:
+            user = auth_user
         return user
+
+    def can_act_as(self, auth_user, user):
+        return False
+
+
+class OnlySuperUserCanActAsModelBackend(ActAsModelBackend):
+    def can_act_as(self, auth_user, user):
+        return auth_user.is_superuser and not user.is_superuser

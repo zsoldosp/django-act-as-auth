@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals
 from django.test import TransactionTestCase
 
-from djactasauth.backends import FilteredModelBackend, ActAsModelBackend
+from djactasauth.backends import FilteredModelBackend, ActAsModelBackend, OnlySuperUserCanActAsModelBackend
 
 
 class FilteredBackendTestCase(TransactionTestCase):
@@ -58,17 +58,17 @@ class ActAsModelBackendTestCase(TransactionTestCase):
 
     def test_can_authenticate_user(self):
         user = self.create_user(username='user', password='password')
-        self.assertEqual(user, ActAsModelBackend().authenticate(username='user', password='password'))
+        self.assertEqual(user, self.authenticate(username='user', password='password'))
 
     def test_can_become_another_user_with_own_password(self):
         admin = self.create_user(username='admin', password='admin password')
         user = self.create_user(username='user', password='user password')
-        self.assertEqual(None, ActAsModelBackend().authenticate(username='admin/user', password='user password'))
-        self.assertEqual(user, ActAsModelBackend().authenticate(username='admin/user', password='admin password'))
+        self.assertEqual(None, self.authenticate(username='admin/user', password='user password'))
+        self.assertEqual(user, self.authenticate(username='admin/user', password='admin password'))
 
     def test_cannot_become_nonexistent_user(self):
         admin = self.create_user(username='admin', password='password')
-        self.assertEqual(None, ActAsModelBackend().authenticate(username='admin/user', password='password'))
+        self.assertEqual(None, self.authenticate(username='admin/user', password='password'))
 
     def test_authenticate_does_not_fire_login_signal(self):
         def should_not_fire_login_signal(user, **kwargs):
@@ -80,16 +80,53 @@ class ActAsModelBackendTestCase(TransactionTestCase):
 
         auth_signals.user_logged_in.connect(should_not_fire_login_signal)
         try:
-            ActAsModelBackend().authenticate(username='admin/user', password='admin password')
+            self.authenticate(username='admin/user', password='admin password')
         finally:
             auth_signals.user_logged_in.disconnect(should_not_fire_login_signal)
-        self.assertEqual(user, ActAsModelBackend().authenticate(username='admin/user', password='admin password'))
+        self.assertEqual(user, self.authenticate(username='admin/user', password='admin password'))
+
+    def test_regression_test_for_only_super_user_can_act_as_model_backend(self):
+
+        admin1 = self.create_user(username='admin1', password='admin1 password', is_superuser=True)
+        admin2 = self.create_user(username='admin2', password='admin2 password', is_superuser=True)
+        user = self.create_user(username='user', password='user password', is_superuser=False)
+
+        self.assertEqual(None, self.authenticate(username='user/admin1', password='user password', backend_cls=OnlySuperUserCanActAsModelBackend))
+        self.assertEqual(None, self.authenticate(username='user/admin2', password='user password', backend_cls=OnlySuperUserCanActAsModelBackend))
+
+        self.assertEqual(user, self.authenticate(username='admin1/user', password='admin1 password', backend_cls=OnlySuperUserCanActAsModelBackend))
+        self.assertEqual(user, self.authenticate(username='admin2/user', password='admin2 password', backend_cls=OnlySuperUserCanActAsModelBackend))
+
+        self.assertEqual(None, self.authenticate(username='admin1/admin2', password='admin1 password', backend_cls=OnlySuperUserCanActAsModelBackend))
+        self.assertEqual(None, self.authenticate(username='admin2/admin1', password='admin2 password', backend_cls=OnlySuperUserCanActAsModelBackend))
+
+    def test_can_customize_can_act_as_policy_by_subclassing(self):
+        alice = self.create_user(username='alice', password='alice')
+        bob = self.create_user(username='bob', password='bob')
+
+        class OnlyShortUserNamesCanActAs(ActAsModelBackend):
+
+            def can_act_as(self, auth_user, user):
+                return len(auth_user.username) <= 3
+
+        self.assertEqual(None, self.authenticate(username='alice/bob', password='alice', backend_cls=OnlyShortUserNamesCanActAs))
+        self.assertEqual(alice, self.authenticate(username='bob/alice', password='bob', backend_cls=OnlyShortUserNamesCanActAs))
+
 
 
 ###
 
-    def create_user(self, username, password):
-        user = User(username=username)
+    def create_user(self, username, password, is_superuser=False):
+        user = User(username=username, is_superuser=is_superuser)
         user.set_password(password)
         user.save()
         return user
+
+    def authenticate(self, username, password, backend_cls=None):
+        if not backend_cls:
+            class EveryoneCanActAs(ActAsModelBackend):
+                def can_act_as(self, auth_user, user):
+                    return True
+            backend_cls = EveryoneCanActAs
+
+        return backend_cls().authenticate(username=username, password=password)

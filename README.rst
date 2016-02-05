@@ -16,11 +16,12 @@ Add it to your auth backends in ``settings``::
     import djactasauth
     AUTHENTICATION_BACKENDS = (
         ...,
-        'djactasauth.backends.ActAsModelBackend',
+        'djactasauth.backends.OnlySuperuserCanActAsModelBackend',
         ...,
     )
 
-Then you can log in with username ``yourusername/customer`` and password
+
+Then you can log in with username ``your_superuser_name/customer`` and password
 ``yourpassword``.
 
 
@@ -40,7 +41,19 @@ as its parent, ``django.contrib.auth.backends.ModelBackend``.
 An empty dictionary (``{}``) is also a valid value for filters, again,
 the behavior is the same as if no such field was specifiec.
 
+``ActAsModelBackend``
+........................
 
+This is a subclass of ``FilteredModelBackend``.
+
+You can have precise control over which user can act as which other kind
+of user, by subclassing ``ActAsModelBackend``, and describing your policy
+by overwriting the ``can_act_as(self, auth_user, user)`` method. For an
+example, see ``djactasauth.backends.OnlySuperUserCanActAsModelBackend``.
+
+
+``ActAsModelBackend`` by default doesn't allow anyone to act-as, so there
+is no chance for misconfiguration.
 
 Release Notes
 -------------
@@ -48,4 +61,5 @@ Release Notes
 * 0.1.0 - initial release
 
   * supports Django 1.5 and 1.8 on python 2.7
-  * introduce ``FilteredModelBackend``
+  * introduce ``FilteredModelBackend``, ``ActAsModelBackend``,
+    and ``OnlySuperUserCanActAsModelBackend``
