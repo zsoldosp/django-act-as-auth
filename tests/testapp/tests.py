@@ -2,7 +2,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
 
-from djactasauth.backends import FilteredModelBackend
+from djactasauth.backends import FilteredModelBackend, ActAsModelBackend
 
 
 class FilteredBackendTestCase(TransactionTestCase):
@@ -34,3 +34,23 @@ class FilteredBackendTestCase(TransactionTestCase):
         self.assertEqual(superuser, get_user(superuser, dict(is_superuser=True)))
         self.assertEqual(customer, get_user(customer, dict(username__startswith='c')))
         self.assertEqual(None, get_user(superuser, dict(username__startswith='c')))
+
+
+class ActAsModelBackendTestCase(TransactionTestCase):
+
+    def test_it_is_a_filtered_model_backend(self):
+        self.assertTrue(
+            issubclass(ActAsModelBackend, FilteredModelBackend),
+            ActAsModelBackend.__mro__)
+
+    def test_can_authenticate_user(self):
+        user = self.create_user(username='user', password='password')
+        self.assertEqual(user, ActAsModelBackend().authenticate(username='user', password='password'))
+
+###
+
+    def create_user(self, username, password):
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+        return user

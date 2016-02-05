@@ -13,3 +13,7 @@ class FilteredModelBackend(ModelBackend):
             if not qs.exists():
                 return None
         return user
+
+
+class ActAsModelBackend(FilteredModelBackend):
+    pass
