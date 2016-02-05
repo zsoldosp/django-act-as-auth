@@ -157,3 +157,15 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         finally:
             auth_signals.user_logged_in.disconnect(handle_user_logged_in)
         self.assertEqual([user], logged_in_users)
+
+    def test_after_logging_in_the_correct_user_is_passed_in_the_request(self):
+        admin = create_user(username='admin', password='admin', is_superuser=True)
+        self.client.post('/login/', dict(username='admin', password='admin'))
+        whoami_response = self.client.get('/whoami/')
+        self.assertEquals('admin', whoami_response.content)
+
+    def test_after_logging_in_the_correct_user_is_passed_in_the_request_act_as(self):
+        admin = create_user(username='admin', password='admin', is_superuser=True)
+        user = create_user(username='user', password='user', is_superuser=False)
+        self.client.post('/login/', dict(username='admin/user', password='admin'))
+        whoami_response = self.client.get('/whoami/')
