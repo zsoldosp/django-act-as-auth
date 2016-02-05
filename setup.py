@@ -35,7 +35,7 @@ setup(
     ],
     license="BSD",
     zip_safe=False,
-    keywords='django-act-as-auth',
+    keywords='django, authentication, act as, impersonation',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Framework :: Django',
