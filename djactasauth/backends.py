@@ -6,6 +6,15 @@ from django.contrib.auth import get_user_model
 class FilteredModelBackend(ModelBackend):
     def get_user(self, user_id):
         user = super(FilteredModelBackend, self).get_user(user_id)
+        return self.filter_user(user)
+
+    def authenticate(self, username=None, password=None, **kwargs):
+        user = super(FilteredModelBackend, self).authenticate(
+                username=username, password=password, **kwargs)
+        return self.filter_user(user)
+
+
+    def filter_user(self, user):
         if not user:
             return user
         filters = getattr(self, 'filter_kwargs', None)

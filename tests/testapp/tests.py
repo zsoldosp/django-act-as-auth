@@ -16,24 +16,36 @@ class FilteredBackendTestCase(TransactionTestCase):
         staff = User.objects.create(username='staff', is_staff=True, is_superuser=False)
         superuser = User.objects.create(username='superuser', is_staff=True, is_superuser=True)
         customer = User.objects.create(username='customer', is_staff=False, is_superuser=False)
+        for u in [staff, superuser, customer]:
+            u.set_password('password')
+            u.save()
 
         class TestFilteredBackend(FilteredModelBackend):
 
             def __init__(self, filter_kwargs):
                 self.filter_kwargs = filter_kwargs
 
+        def run_scenarios_with(test_method):
+            self.assertEqual(staff, test_method(staff, dict()))
+            self.assertEqual(superuser, test_method(superuser, dict()))
+            self.assertEqual(customer, test_method(customer, dict()))
+
+            self.assertEqual(None, test_method(customer, dict(is_staff=True)))
+            self.assertEqual(superuser, test_method(superuser, dict(is_superuser=True)))
+            self.assertEqual(customer, test_method(customer, dict(username__startswith='c')))
+            self.assertEqual(None, test_method(superuser, dict(username__startswith='c')))
+
         def get_user(user, filter_kwargs):
             backend = TestFilteredBackend(filter_kwargs)
             return backend.get_user(user.pk)
 
-        self.assertEqual(staff, get_user(staff, dict()))
-        self.assertEqual(superuser, get_user(superuser, dict()))
-        self.assertEqual(customer, get_user(customer, dict()))
+        run_scenarios_with(get_user)
 
-        self.assertEqual(None, get_user(customer, dict(is_staff=True)))
-        self.assertEqual(superuser, get_user(superuser, dict(is_superuser=True)))
-        self.assertEqual(customer, get_user(customer, dict(username__startswith='c')))
-        self.assertEqual(None, get_user(superuser, dict(username__startswith='c')))
+        def authenticate(user, filter_kwargs):
+            backend = TestFilteredBackend(filter_kwargs)
+            return backend.authenticate(username=user.username, password='password')
+
+        run_scenarios_with(authenticate)
 
 
 class ActAsModelBackendTestCase(TransactionTestCase):
