@@ -20,6 +20,11 @@ INSTALLED_APPS = (
     'testapp',
 )
 
+MIDDLEWARE_CLASSES = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
+
 STATIC_URL = '/static/'
 
 ROOT_URLCONF = 'testapp.urls'
