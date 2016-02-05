@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth import get_user_model
 
 
 class FilteredModelBackend(ModelBackend):
@@ -16,4 +17,20 @@ class FilteredModelBackend(ModelBackend):
 
 
 class ActAsModelBackend(FilteredModelBackend):
-    pass
+
+    sepchar = '/'
+
+    def authenticate(self, username=None, password=None, **kwargs):
+        if self.sepchar in username:
+            auth_username, act_as_username = username.split(self.sepchar)
+        else:
+            auth_username = act_as_username = username
+
+        user = super(ActAsModelBackend, self).authenticate(
+                username=auth_username, password=password, **kwargs)
+        if not user:
+            return user
+        if auth_username != act_as_username:
+            UserModel = get_user_model()
+            user = UserModel._default_manager.get_by_natural_key(act_as_username)
+        return user

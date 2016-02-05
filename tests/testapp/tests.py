@@ -47,6 +47,13 @@ class ActAsModelBackendTestCase(TransactionTestCase):
         user = self.create_user(username='user', password='password')
         self.assertEqual(user, ActAsModelBackend().authenticate(username='user', password='password'))
 
+    def test_can_become_another_user_with_own_password(self):
+        admin = self.create_user(username='admin', password='admin password')
+        user = self.create_user(username='user', password='user password')
+        self.assertEqual(None, ActAsModelBackend().authenticate(username='admin/user', password='user password'))
+        self.assertEqual(user, ActAsModelBackend().authenticate(username='admin/user', password='admin password'))
+
+
 ###
 
     def create_user(self, username, password):
