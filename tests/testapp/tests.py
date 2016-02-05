@@ -1,7 +1,9 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals
+from django.contrib.auth.forms import AuthenticationForm
 from django.test import TransactionTestCase
+from django.test.utils import override_settings
 
 from djactasauth.backends import FilteredModelBackend, ActAsModelBackend, OnlySuperUserCanActAsModelBackend
 
@@ -112,8 +114,6 @@ class ActAsModelBackendTestCase(TransactionTestCase):
         self.assertEqual(None, self.authenticate(username='alice/bob', password='alice', backend_cls=OnlyShortUserNamesCanActAs))
         self.assertEqual(alice, self.authenticate(username='bob/alice', password='bob', backend_cls=OnlyShortUserNamesCanActAs))
 
-
-
 ###
 
     def create_user(self, username, password, is_superuser=False):
@@ -130,3 +130,13 @@ class ActAsModelBackendTestCase(TransactionTestCase):
             backend_cls = EveryoneCanActAs
 
         return backend_cls().authenticate(username=username, password=password)
+
+
+@override_settings(AUTHENTICATION_BACKENDS=['djactasauth.backends.OnlySuperuserCanActAsModelBackend'])
+class EndToEndActAsThroughFormAndView(TransactionTestCase):
+
+    def test_login_page_is_set_up_as_expected(self):
+        response = self.client.get('/login/')
+        self.assertEquals(200, response.status_code)
+        form = response.context['form']
+        self.assertEquals(AuthenticationForm, type(form))

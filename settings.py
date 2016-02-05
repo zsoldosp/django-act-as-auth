@@ -13,6 +13,7 @@ DATABASES = {
 SECRET_KEY = 'mq%31q+sjj^)m^tvy(klwqw6ksv7du2yzdf9yn78iga*r%8w^t-djactasauth'
 
 INSTALLED_APPS = (
+    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'djactasauth',
@@ -20,3 +21,5 @@ INSTALLED_APPS = (
 )
 
 STATIC_URL = '/static/'
+
+ROOT_URLCONF = 'testapp.urls'
