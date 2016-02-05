@@ -13,13 +13,13 @@ class FilteredModelBackend(ModelBackend):
                 username=username, password=password, **kwargs)
         return self.filter_user(user)
 
-
     def filter_user(self, user):
         if not user:
             return user
         filters = getattr(self, 'filter_kwargs', None)
         if filters:
-            qs = type(user)._default_manager.filter(pk=user.pk).filter(**filters)
+            qs = type(user)._default_manager.filter(
+                pk=user.pk).filter(**filters)
             if not qs.exists():
                 return None
         return user
@@ -42,7 +42,8 @@ class ActAsModelBackend(FilteredModelBackend):
         if auth_username != act_as_username:
             UserModel = get_user_model()
             try:
-                user = UserModel._default_manager.get_by_natural_key(act_as_username)
+                user = UserModel._default_manager.get_by_natural_key(
+                    act_as_username)
             except UserModel.DoesNotExist:
                 user = None
             if not self.can_act_as(auth_user=auth_user, user=user):
