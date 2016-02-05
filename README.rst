@@ -49,7 +49,7 @@ This is a subclass of ``FilteredModelBackend``.
 You can have precise control over which user can act as which other kind
 of user, by subclassing ``ActAsModelBackend``, and describing your policy
 by overwriting the ``can_act_as(self, auth_user, user)`` method. For an
-example, see ``djactasauth.backends.OnlySuperUserCanActAsModelBackend``.
+example, see ``djactasauth.backends.OnlySuperuserCanActAsModelBackend``.
 
 
 ``ActAsModelBackend`` by default doesn't allow anyone to act-as, so there
@@ -62,4 +62,4 @@ Release Notes
 
   * supports Django 1.5 and 1.8 on python 2.7
   * introduce ``FilteredModelBackend``, ``ActAsModelBackend``,
-    and ``OnlySuperUserCanActAsModelBackend``
+    and ``OnlySuperuserCanActAsModelBackend``

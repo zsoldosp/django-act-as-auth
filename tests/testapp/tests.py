@@ -5,7 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 
-from djactasauth.backends import FilteredModelBackend, ActAsModelBackend, OnlySuperUserCanActAsModelBackend
+from djactasauth.backends import FilteredModelBackend, ActAsModelBackend, OnlySuperuserCanActAsModelBackend
 
 
 def create_user(username, password='password', is_superuser=False, is_staff=False):
@@ -101,14 +101,14 @@ class ActAsModelBackendTestCase(TransactionTestCase):
         admin2 = create_user(username='admin2', password='admin2 password', is_superuser=True)
         user = create_user(username='user', password='user password', is_superuser=False)
 
-        self.assertEqual(None, self.authenticate(username='user/admin1', password='user password', backend_cls=OnlySuperUserCanActAsModelBackend))
-        self.assertEqual(None, self.authenticate(username='user/admin2', password='user password', backend_cls=OnlySuperUserCanActAsModelBackend))
+        self.assertEqual(None, self.authenticate(username='user/admin1', password='user password', backend_cls=OnlySuperuserCanActAsModelBackend))
+        self.assertEqual(None, self.authenticate(username='user/admin2', password='user password', backend_cls=OnlySuperuserCanActAsModelBackend))
 
-        self.assertEqual(user, self.authenticate(username='admin1/user', password='admin1 password', backend_cls=OnlySuperUserCanActAsModelBackend))
-        self.assertEqual(user, self.authenticate(username='admin2/user', password='admin2 password', backend_cls=OnlySuperUserCanActAsModelBackend))
+        self.assertEqual(user, self.authenticate(username='admin1/user', password='admin1 password', backend_cls=OnlySuperuserCanActAsModelBackend))
+        self.assertEqual(user, self.authenticate(username='admin2/user', password='admin2 password', backend_cls=OnlySuperuserCanActAsModelBackend))
 
-        self.assertEqual(None, self.authenticate(username='admin1/admin2', password='admin1 password', backend_cls=OnlySuperUserCanActAsModelBackend))
-        self.assertEqual(None, self.authenticate(username='admin2/admin1', password='admin2 password', backend_cls=OnlySuperUserCanActAsModelBackend))
+        self.assertEqual(None, self.authenticate(username='admin1/admin2', password='admin1 password', backend_cls=OnlySuperuserCanActAsModelBackend))
+        self.assertEqual(None, self.authenticate(username='admin2/admin1', password='admin2 password', backend_cls=OnlySuperuserCanActAsModelBackend))
 
     def test_can_customize_can_act_as_policy_by_subclassing(self):
         alice = create_user(username='alice', password='alice')

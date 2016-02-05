@@ -55,6 +55,6 @@ class ActAsModelBackend(FilteredModelBackend):
         return False
 
 
-class OnlySuperUserCanActAsModelBackend(ActAsModelBackend):
+class OnlySuperuserCanActAsModelBackend(ActAsModelBackend):
     def can_act_as(self, auth_user, user):
         return auth_user.is_superuser and not user.is_superuser
