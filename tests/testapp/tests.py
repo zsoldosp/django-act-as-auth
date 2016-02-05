@@ -210,15 +210,22 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
 
     def test_after_login_correct_user_is_passed_in_the_request_no_act_as(self):
         create_user(username='admin', password='admin', is_superuser=True)
-        self.client.post(
-            '/login/', dict(username='admin', password='admin'))
-        whoami_response = self.client.get('/whoami/')
-        self.assertEquals('admin', whoami_response.content)
+        self.assert_logged_in_user_on_next_request(
+            username='admin', password='admin', display_user='admin')
 
     def test_after_login_correct_user_is_passed_in_the_request_act_as(self):
         create_user(username='admin', password='admin', is_superuser=True)
         create_user(username='user', password='user', is_superuser=False)
-        self.client.post(
-            '/login/', dict(username='admin/user', password='admin'))
+        self.assert_logged_in_user_on_next_request(
+            username='admin/user', password='admin', display_user='user')
+
+###
+
+    def assert_logged_in_user_on_next_request(
+            self, username, password, display_user):
+        login_response = self.client.post(
+            '/login/', dict(username=username, password=password))
+        self.assertEquals(302, login_response.status_code)
         whoami_response = self.client.get('/whoami/')
-        self.assertEquals('user', whoami_response.content)
+        self.assertEquals(
+            display_user, whoami_response.content.decode('ascii'))
