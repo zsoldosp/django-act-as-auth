@@ -142,3 +142,18 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assertEquals(200, response.status_code)
         form = response.context['form']
         self.assertEquals(AuthenticationForm, type(form))
+
+    def test_successful_act_as_login_fires_user_logged_in_signal_with_act_as_user(self):
+        logged_in_users = []
+        def handle_user_logged_in(user, **kwargs):
+            logged_in_users.append(user)
+
+        auth_signals.user_logged_in.connect(handle_user_logged_in)
+        admin = create_user(username='admin', password='admin', is_superuser=True)
+        user = create_user(username='user', password='user', is_superuser=False)
+        try:
+            response = self.client.post('/login/', dict(username='admin/user', password='admin'))
+            self.assertEquals(302, response.status_code)
+        finally:
+            auth_signals.user_logged_in.disconnect(handle_user_logged_in)
+        self.assertEqual([user], logged_in_users)
