@@ -29,8 +29,12 @@ class ActAsModelBackend(FilteredModelBackend):
 
     sepchar = '/'
 
+    @classmethod
+    def is_act_as_username(cls, username):
+        return cls.sepchar in username
+
     def authenticate(self, username=None, password=None, **kwargs):
-        if self.sepchar in username:
+        if self.is_act_as_username(username):
             auth_username, act_as_username = username.split(self.sepchar)
         else:
             auth_username = act_as_username = username
