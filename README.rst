@@ -1,5 +1,5 @@
 =============================
-djactasauth
+Django Act As Auth Backend
 =============================
 
 Django authentication that allows you to login as someone else
@@ -9,7 +9,7 @@ Quickstart
 
 Install djactasauth::
 
-    pip install django-act-as-auth
+    pip install djactasauth
 
 Add it to your auth backends in ``settings``::
 
