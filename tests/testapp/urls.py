@@ -6,6 +6,7 @@ from testapp.views import whoami
 
 urlpatterns = patterns(
     'testapp',
-    url(r'^login/$', login, dict(authentication_form=AuthenticationForm)),
+    url(r'^login/$',
+        login, dict(authentication_form=AuthenticationForm), 'login'),
     url(r'^whoami/$', whoami),
 )
