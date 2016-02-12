@@ -58,6 +58,10 @@ is no chance for misconfiguration.
 Release Notes
 -------------
 
+* 0.1.2
+
+  * ...
+
 * 0.1.1
 
   * bugfix: ``ActAsModelBackend.is_act_as_username`` used to fail when
