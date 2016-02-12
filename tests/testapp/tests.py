@@ -236,27 +236,37 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         create_user(username='user', password='user', is_superuser=False)
         self.assert_logged_in_user_on_next_request(
             username='user', password='user', display_user='user',
-            query={REDIRECT_FIELD_NAME: '/foo/'})
+            **{REDIRECT_FIELD_NAME: '/foo/'})
         redir_to = parse.urlparse(self.login_post_response['Location'])
         self.assertEqual('/foo/', redir_to.path)
 
 ###
 
     def assert_logged_in_user_on_next_request(
-            self, username, password, display_user,
-            query=None):
-        if not query:
-            query = {}
-        url = reverse('login') + '?' + parse.urlencode(query)
+            self, username, password, display_user, **query):
 
+        self.goto_login_page(**query)
+
+        self.submit_login(username=username, password=password, **query)
+
+        self.get_whoami_page()
+        self.assertEquals(
+            display_user, self.whoami_response.content.decode('ascii'))
+
+    def get_login_url(self, **query):
+        return reverse('login') + '?' + parse.urlencode(query)
+
+    def goto_login_page(self, **query):
+        url = self.get_login_url(**query)
         self.login_get_response = self.client.get(url)
         self.assertEquals(200, self.login_get_response.status_code)
 
+    def submit_login(self, username, password, **query):
+        url = self.get_login_url(**query)
         self.login_post_response = self.client.post(
             url, dict(username=username, password=password))
         self.assertEquals(302, self.login_post_response.status_code)
 
+    def get_whoami_page(self):
         self.whoami_response = self.client.get('/whoami/')
         self.assertEquals(200, self.whoami_response.status_code)
-        self.assertEquals(
-            display_user, self.whoami_response.content.decode('ascii'))
