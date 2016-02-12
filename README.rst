@@ -54,8 +54,8 @@ as its parent, ``django.contrib.auth.backends.ModelBackend``.
 An empty dictionary (``{}``) is also a valid value for filters, again,
 the behavior is the same as if no such field was specifiec.
 
-``ActAsModelBackend``
-.....................
+``djactasauth.backends.ActAsModelBackend``
+..........................................
 
 This is a subclass of ``FilteredModelBackend``.
 
@@ -68,8 +68,8 @@ example, see ``djactasauth.backends.OnlySuperuserCanActAsModelBackend``.
 ``ActAsModelBackend`` by default doesn't allow anyone to act-as, so there
 is no chance for misconfiguration.
 
-``act_as_login_view``
-.....................
+``djactasauth.views.act_as_login_view``
+.......................................
 
 You can extend this through the standard ``kwargs``, as you would extend
 ``django.contrib.auth.views.login``, or you can create your own view
