@@ -60,7 +60,8 @@ Release Notes
 
 * 0.1.1
 
-  * xxx
+  * bugfix: ``ActAsModelBackend.is_act_as_username`` used to fail when
+    ``username`` argument was ``None``, now it returns ``False``
 
 * 0.1.0 - initial release
 

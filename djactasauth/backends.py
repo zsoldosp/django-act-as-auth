@@ -31,6 +31,8 @@ class ActAsModelBackend(FilteredModelBackend):
 
     @classmethod
     def is_act_as_username(cls, username):
+        if not username:
+            return False
         return cls.sepchar in username
 
     def authenticate(self, username=None, password=None, **kwargs):

@@ -167,6 +167,17 @@ class ActAsModelBackendTestCase(TransactionTestCase):
                 backend_cls=OnlyShortUserNamesCanActAs,
                 username='bob/alice', password='bob'))
 
+    def test_is_act_as_username_method(self):
+        def assert_classification(username, expected_to_be_act_as_username):
+            self.assertEqual(
+                expected_to_be_act_as_username,
+                ActAsModelBackend.is_act_as_username(username))
+
+        assert_classification(None, False)
+        assert_classification('', False)
+        assert_classification('user', False)
+        assert_classification('user/johndoe', True)
+
 ###
 
     def authenticate(self, username, password, backend_cls=None):
