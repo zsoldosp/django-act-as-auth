@@ -20,6 +20,19 @@ Add it to your auth backends in ``settings``::
         ...,
     )
 
+Configure the custom login view to take advantage of all the features
+in your ``urls.py``::
+
+    from django.conf.urls import patterns, url
+    from djactasauth.views import act_as_login_view
+    from testapp.views import whoami
+
+
+    urlpatterns = patterns(
+        '',
+        url(r'^login/$', act_as_login_view, {}, 'login'),
+    )
+
 
 Then you can log in with username ``your_superuser_name/customer`` and password
 ``yourpassword``.
@@ -55,12 +68,20 @@ example, see ``djactasauth.backends.OnlySuperuserCanActAsModelBackend``.
 ``ActAsModelBackend`` by default doesn't allow anyone to act-as, so there
 is no chance for misconfiguration.
 
+``act_as_login_view``
+.....................
+
+You can extend this through the standard ``kwargs``, as you would extend
+``django.contrib.auth.views.login``, or you can create your own view
+method that eventually delegates to it - the same way this implementation
+does for django's own :-)
+
 Release Notes
 -------------
 
 * 0.1.2
 
-  * ...
+  * introduce ``act_as_login_view``
 
 * 0.1.1
 

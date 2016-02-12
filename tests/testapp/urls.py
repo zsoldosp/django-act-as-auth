@@ -1,12 +1,10 @@
 from django.conf.urls import patterns, url
-from django.contrib.auth.views import login
-from django.contrib.auth.forms import AuthenticationForm
+from djactasauth.views import act_as_login_view
 from testapp.views import whoami
 
 
 urlpatterns = patterns(
     'testapp',
-    url(r'^login/$',
-        login, dict(authentication_form=AuthenticationForm), 'login'),
+    url(r'^login/$', act_as_login_view, {}, 'login'),
     url(r'^whoami/$', whoami),
 )
