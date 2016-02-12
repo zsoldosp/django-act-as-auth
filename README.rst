@@ -58,6 +58,10 @@ is no chance for misconfiguration.
 Release Notes
 -------------
 
+* 0.1.1
+
+  * xxx
+
 * 0.1.0 - initial release
 
   * supports Django 1.5, 1.8 and 1.9 on python 2.7 and 3.4
