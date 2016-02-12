@@ -1,5 +1,4 @@
-import urlparse
-import urllib
+from six.moves.urllib import parse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
@@ -238,7 +237,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assert_logged_in_user_on_next_request(
             username='user', password='user', display_user='user',
             query={REDIRECT_FIELD_NAME: '/foo/'})
-        redir_to = urlparse.urlparse(self.login_post_response['Location'])
+        redir_to = parse.urlparse(self.login_post_response['Location'])
         self.assertEqual('/foo/', redir_to.path)
 
 ###
@@ -248,7 +247,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
             query=None):
         if not query:
             query = {}
-        url = reverse('login') + '?' + urllib.urlencode(query)
+        url = reverse('login') + '?' + parse.urlencode(query)
 
         self.login_get_response = self.client.get(url)
         self.assertEquals(200, self.login_get_response.status_code)

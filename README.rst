@@ -64,6 +64,7 @@ Release Notes
     ``username`` argument was ``None``, now it returns ``False``
   * explicitly regression testing for login redirecting to
     value provided in ``REDIRECT_FIELD_NAME``
+  * bugfix: ``setup.py`` now lists its dependencies (and added ``six``)
 
 * 0.1.0 - initial release
 
