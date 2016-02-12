@@ -201,7 +201,8 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         response = self.client.get('/login/')
         self.assertEquals(200, response.status_code)
         form = response.context['form']
-        self.assertEquals(AuthenticationForm, type(form))
+        self.assertTrue(
+            isinstance(form, AuthenticationForm), type(form).__mro__)
 
     def test_successful_act_as_login_fires_signal_with_act_as_user(self):
         logged_in_users = []
@@ -214,9 +215,9 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         user = create_user(
             username='user', password='user', is_superuser=False)
         try:
-            response = self.client.post(
-                '/login/', dict(username='admin/user', password='admin'))
-            self.assertEquals(302, response.status_code)
+            self.goto_login_page()
+            self.submit_login(username='admin/user', password='admin')
+            self.assertEqual(302, self.login_post_response.status_code)
         finally:
             auth_signals.user_logged_in.disconnect(handle_user_logged_in)
         self.assertEqual([user], logged_in_users)
@@ -240,6 +241,15 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         redir_to = parse.urlparse(self.login_post_response['Location'])
         self.assertEqual('/foo/', redir_to.path)
 
+    def test_on_post_form_has_access_to_request(self):
+        self.goto_login_page()
+        self.submit_login(username='foo', password='bar')
+        response = self.login_post_response
+        self.assertEqual(200, response.status_code)
+        form = response.context['form']
+        self.assertTrue(hasattr(form, 'request'))
+        self.assertIsNotNone(form.request)
+
 ###
 
     def assert_logged_in_user_on_next_request(
@@ -248,6 +258,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.goto_login_page(**query)
 
         self.submit_login(username=username, password=password, **query)
+        self.assertEqual(302, self.login_post_response.status_code)
 
         self.get_whoami_page()
         self.assertEquals(
@@ -265,7 +276,6 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         url = self.get_login_url(**query)
         self.login_post_response = self.client.post(
             url, dict(username=username, password=password))
-        self.assertEquals(302, self.login_post_response.status_code)
 
     def get_whoami_page(self):
         self.whoami_response = self.client.get('/whoami/')

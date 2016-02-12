@@ -82,6 +82,8 @@ Release Notes
 * 0.1.2
 
   * introduce ``act_as_login_view``
+  * "backport" to Django 1.5: ``authentication_form`` has ``request`` even
+    on ``POST``
 
 * 0.1.1
 
