@@ -1,6 +1,9 @@
+import urlparse
+import urllib
+from django.core.urlresolvers import reverse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
-from django.contrib.auth import signals as auth_signals
+from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
@@ -230,13 +233,31 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assert_logged_in_user_on_next_request(
             username='admin/user', password='admin', display_user='user')
 
+    def test_next_from_GET_is_respected_and_user_is_redirected_there(self):
+        create_user(username='user', password='user', is_superuser=False)
+        self.assert_logged_in_user_on_next_request(
+            username='user', password='user', display_user='user',
+            query={REDIRECT_FIELD_NAME: '/foo/'})
+        redir_to = urlparse.urlparse(self.login_post_response['Location'])
+        self.assertEqual('/foo/', redir_to.path)
+
 ###
 
     def assert_logged_in_user_on_next_request(
-            self, username, password, display_user):
-        login_response = self.client.post(
-            '/login/', dict(username=username, password=password))
-        self.assertEquals(302, login_response.status_code)
-        whoami_response = self.client.get('/whoami/')
+            self, username, password, display_user,
+            query=None):
+        if not query:
+            query = {}
+        url = reverse('login') + '?' + urllib.urlencode(query)
+
+        self.login_get_response = self.client.get(url)
+        self.assertEquals(200, self.login_get_response.status_code)
+
+        self.login_post_response = self.client.post(
+            url, dict(username=username, password=password))
+        self.assertEquals(302, self.login_post_response.status_code)
+
+        self.whoami_response = self.client.get('/whoami/')
+        self.assertEquals(200, self.whoami_response.status_code)
         self.assertEquals(
-            display_user, whoami_response.content.decode('ascii'))
+            display_user, self.whoami_response.content.decode('ascii'))

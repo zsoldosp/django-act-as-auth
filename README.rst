@@ -62,6 +62,8 @@ Release Notes
 
   * bugfix: ``ActAsModelBackend.is_act_as_username`` used to fail when
     ``username`` argument was ``None``, now it returns ``False``
+  * explicitly regression testing for login redirecting to
+    value provided in ``REDIRECT_FIELD_NAME``
 
 * 0.1.0 - initial release
 
