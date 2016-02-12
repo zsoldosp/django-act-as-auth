@@ -198,8 +198,9 @@ class ActAsModelBackendTestCase(TransactionTestCase):
 class EndToEndActAsThroughFormAndView(TransactionTestCase):
 
     def test_login_page_is_set_up_as_expected(self):
-        response = self.client.get('/login/')
-        self.assertEquals(200, response.status_code)
+        self.goto_login_page()
+        response = self.login_get_response
+        self.assertEqual(200, response.status_code)
         form = response.context['form']
         self.assertTrue(
             isinstance(form, AuthenticationForm), type(form).__mro__)
