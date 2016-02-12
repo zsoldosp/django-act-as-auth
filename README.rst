@@ -76,6 +76,18 @@ You can extend this through the standard ``kwargs``, as you would extend
 method that eventually delegates to it - the same way this implementation
 does for django's own :-)
 
+``djactasauth.forms.InitialValuesFromRequestGetFormMixin``
+..........................................................
+
+It's a ``Form`` mixin, which - given one of its super`s has initialized
+the form's ``self.request``, will got through ``self.request.GET``, and
+copy over the values to ``self.initial`` - unless ``self.initial`` already
+has a value for the given field names you declared in your class's 
+``query2initial`` property (``tuple``).
+
+This is needed for a feature here, but you might find it useful in other
+parts of your code too :-)
+
 Release Notes
 -------------
 
@@ -84,6 +96,8 @@ Release Notes
   * introduce ``act_as_login_view``
   * "backport" to Django 1.5: ``authentication_form`` has ``request`` even
     on ``POST``
+  * introduce ``InitialValuesFromRequestGetFormMixin``
+  * can prefill ``username`` from query string
 
 * 0.1.1
 

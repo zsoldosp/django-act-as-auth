@@ -251,6 +251,11 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assertTrue(hasattr(form, 'request'))
         self.assertIsNotNone(form.request)
 
+    def test_can_initialize_username_from_querystring(self):
+        self.goto_login_page(username='foo')
+        form = self.login_get_response.context['form']
+        self.assertEqual('foo', form.initial.get('username'))
+
 ###
 
     def assert_logged_in_user_on_next_request(
