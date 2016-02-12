@@ -55,7 +55,7 @@ An empty dictionary (``{}``) is also a valid value for filters, again,
 the behavior is the same as if no such field was specifiec.
 
 ``ActAsModelBackend``
-........................
+.....................
 
 This is a subclass of ``FilteredModelBackend``.
 
