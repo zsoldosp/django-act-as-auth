@@ -261,7 +261,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assertEqual(302, self.login_post_response.status_code)
 
         self.get_whoami_page()
-        self.assertEquals(
+        self.assertEqual(
             display_user, self.whoami_response.content.decode('ascii'))
 
     def get_login_url(self, **query):
@@ -270,7 +270,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
     def goto_login_page(self, **query):
         url = self.get_login_url(**query)
         self.login_get_response = self.client.get(url)
-        self.assertEquals(200, self.login_get_response.status_code)
+        self.assertEqual(200, self.login_get_response.status_code)
 
     def submit_login(self, username, password, **query):
         url = self.get_login_url(**query)
@@ -279,4 +279,4 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
 
     def get_whoami_page(self):
         self.whoami_response = self.client.get('/whoami/')
-        self.assertEquals(200, self.whoami_response.status_code)
+        self.assertEqual(200, self.whoami_response.status_code)
