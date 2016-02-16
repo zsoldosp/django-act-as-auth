@@ -4,8 +4,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from djactasauth.forms import InitialValuesFromRequestGetFormMixin
 
 
-def act_as_login_view(request, **kwargs):
-    base_form = kwargs.get('authentication_form', AuthenticationForm)
+def get_login_form(request, authentication_form=AuthenticationForm, **kwargs):
+    base_form = authentication_form
     if django.VERSION[:2] < (1, 6):
         class CaptureRequestActAsAuthForm(base_form):
             def __init__(self, *a, **kw):
@@ -15,13 +15,23 @@ def act_as_login_view(request, **kwargs):
 
         base_form = CaptureRequestActAsAuthForm
 
-    class InitialFromQueryAuthForm(
-            InitialValuesFromRequestGetFormMixin, base_form):
+    if not issubclass(base_form, InitialValuesFromRequestGetFormMixin):
+        class InitialFromQueryAuthForm(
+                InitialValuesFromRequestGetFormMixin, base_form):
 
-        @property
-        def query2initial(self):
-            return super(InitialFromQueryAuthForm, self).query2initial + \
-                    ('username',)
+            @property
+            def query2initial(self):
+                return super(InitialFromQueryAuthForm, self).query2initial + \
+                        ('username',)
 
-    return login(
-        request, authentication_form=InitialFromQueryAuthForm, **kwargs)
+        base_form = InitialFromQueryAuthForm
+    else:
+        # TODO: raise warning if it doesn't have username in query2initial
+        pass
+
+    return base_form
+
+
+def act_as_login_view(request, **kwargs):
+    kwargs['authentication_form'] = get_login_form(request, **kwargs)
+    return login(request, **kwargs)

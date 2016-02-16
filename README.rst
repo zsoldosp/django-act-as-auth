@@ -76,6 +76,15 @@ You can extend this through the standard ``kwargs``, as you would extend
 method that eventually delegates to it - the same way this implementation
 does for django's own :-)
 
+``djactasauth.views.get_login_form``
+.....................................
+
+This is used by ``djactasauth.views.act_as_login_view``. On the one hand,
+it backports a django 1.6 feature to 1.5 (pass in ``request`` as an argument
+to the form), and if needed, it mixes in
+``djactasauth.forms.InitialValuesFromRequestGetFormMixin``, so the username
+can be prefilled for act-as-auth links from the ``GET`` request.
+
 ``djactasauth.forms.InitialValuesFromRequestGetFormMixin``
 ..........................................................
 
