@@ -97,15 +97,30 @@ has a value for the given field names you declared in your class's
 This is needed for a feature here, but you might find it useful in other
 parts of your code too :-)
 
+``djactasauth.util.act_as_login_url``
+.....................................
+
+Convenience method to encapsulate how the act as auth username should be 
+constructed from the two usernames.
+
+
+
 Release Notes
 -------------
 
 * 0.1.2
 
-  * introduce ``act_as_login_view``
+  * introduce
+
+    * ``act_as_login_view``
+    * ``act_as_login_url``
+    * ``get_login_form``
+    * ``InitialValuesFromRequestGetFormMixin``
+
+    as part of the public api
+
   * "backport" to Django 1.5: ``authentication_form`` has ``request`` even
     on ``POST``
-  * introduce ``InitialValuesFromRequestGetFormMixin``
   * can prefill ``username`` from query string
 
 * 0.1.1

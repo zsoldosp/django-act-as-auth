@@ -1,5 +1,4 @@
 from six.moves.urllib import parse
-from django.core.urlresolvers import reverse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
@@ -9,6 +8,7 @@ from django.test.utils import override_settings
 
 from djactasauth.backends import \
     FilteredModelBackend, ActAsModelBackend, OnlySuperuserCanActAsModelBackend
+from djactasauth.util import act_as_login_url, get_login_url
 
 
 def create_user(
@@ -270,19 +270,28 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assertEqual(
             display_user, self.whoami_response.content.decode('ascii'))
 
-    def get_login_url(self, **query):
-        return reverse('login') + '?' + parse.urlencode(query)
-
     def goto_login_page(self, **query):
-        url = self.get_login_url(**query)
+        url = get_login_url(**query)
         self.login_get_response = self.client.get(url)
         self.assertEqual(200, self.login_get_response.status_code)
 
     def submit_login(self, username, password, **query):
-        url = self.get_login_url(**query)
+        url = get_login_url(**query)
         self.login_post_response = self.client.post(
             url, dict(username=username, password=password))
 
     def get_whoami_page(self):
         self.whoami_response = self.client.get('/whoami/')
         self.assertEqual(200, self.whoami_response.status_code)
+
+
+class ActAsUrlGeneratorTestCase(TransactionTestCase):
+
+    def test_generates_the_correct_url(self):
+        self.assertEqual(
+            '/login/?username=admin%2Fuser',
+            act_as_login_url(auth='admin', act_as='user'))
+
+        self.assertEqual(
+            '/login/?username=foo%2Fbar',
+            act_as_login_url(auth='foo', act_as='bar'))
