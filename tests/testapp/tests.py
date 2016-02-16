@@ -169,6 +169,19 @@ class ActAsModelBackendTestCase(TransactionTestCase):
                 backend_cls=OnlyShortUserNamesCanActAs,
                 username='bob/alice', password='bob'))
 
+    def test_when_users_none_doesnt_crash_process(self):
+        create_user(username='jane', password='doe')
+
+        class ShouldNotCallCanActAs(ActAsModelBackend):
+
+            def can_act_as(backend_self, auth_user, user):
+                self.fail('should not have called')
+
+        self.assertEqual(
+            None, self.authenticate(
+                backend_cls=ShouldNotCallCanActAs,
+                username='jane/non-existent-user', password='doe'))
+
     def test_is_act_as_username_method(self):
         def assert_classification(username, expected_to_be_act_as_username):
             self.assertEqual(

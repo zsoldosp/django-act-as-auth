@@ -51,7 +51,7 @@ class ActAsModelBackend(FilteredModelBackend):
                 user = UserModel._default_manager.get_by_natural_key(
                     act_as_username)
             except UserModel.DoesNotExist:
-                user = None
+                return None
             if not self.can_act_as(auth_user=auth_user, user=user):
                 return None
         else:
