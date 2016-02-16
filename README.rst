@@ -122,6 +122,9 @@ Release Notes
   * "backport" to Django 1.5: ``authentication_form`` has ``request`` even
     on ``POST``
   * can prefill ``username`` from query string
+  * bugfix: when user to act as is ``None``, don't crash the process (e.g.:
+    when ``can_act_as`` checked some property of the user, thus generating
+    an ``AttributeError``)
 
 * 0.1.1
 
