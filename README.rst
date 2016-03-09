@@ -100,10 +100,21 @@ parts of your code too :-)
 ``djactasauth.util.act_as_login_url``
 .....................................
 
-Convenience method to encapsulate how the act as auth username should be 
+Convenience method to encapsulate how the act as auth username should be
 constructed from the two usernames.
 
+Supported Versions Policy
+-------------------------
 
+* Currently, Django 1.5 through 1.9 are supported on python 2.7 and 3.4
+* Support is only dropped when a new Django version introduces changes
+  that are not trivial to make work with versions not supported by Django
+  itself. Then support for those Django versions can be dropped without
+  prior notice in the next release
+* There is only one supported release - the latest stable release. I.e.:
+  bugfixes are not backported, i.e.: if the current stable release is 1.2.3,
+  but the bug applies to all versions since 0.1.2, the bug will only be fixed
+  in 1.2.4
 
 Release Notes
 -------------
