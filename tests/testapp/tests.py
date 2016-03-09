@@ -1,4 +1,4 @@
-from six.moves.urllib import parse
+from django.utils.six.moves.urllib import parse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
