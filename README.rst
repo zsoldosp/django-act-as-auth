@@ -108,6 +108,10 @@ constructed from the two usernames.
 Release Notes
 -------------
 
+* 0.1.3
+
+  * explicitly add support for django 1.5 and 1.6
+
 * 0.1.2
 
   * introduce
