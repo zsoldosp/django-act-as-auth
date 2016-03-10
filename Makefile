@@ -9,17 +9,21 @@ help:
 	@echo "test - run tests quickly with the default Python"
 	@echo "testall - run tests on every Python version with tox"
 	@echo "coverage - check code coverage quickly with the default Python"
-	@echo "docs - generate Sphinx HTML documentation, including API docs"
+	@echo "docs - generate Sphinx HTML documentation"
 	@echo "tag - tag the current version and push it to origin"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
 
-clean: clean-build clean-pyc clean-tox
+clean: clean-build clean-pyc clean-tox docs
+
+docs:
+	cd docs && make html
 
 clean-build:
 	rm -fr build/
 	rm -fr dist/
 	find -name *.egg-info -type d | xargs rm -rf
+	cd docs && make clean
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -43,14 +47,6 @@ coverage:
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
-
-docs:
-	rm -f docs/django-act-as-auth.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ django-act-as-auth
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	open docs/_build/html/index.html
 
 tag: VERSION=$(shell python -c"import djactasauth as m; print(m.__version__)")
 tag: TAG:=v${VERSION}
