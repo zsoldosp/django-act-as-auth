@@ -8,7 +8,7 @@ Django authentication that allows you to login as someone else
 Quickstart
 ----------
 
-Install djactasauth::
+Install ``djactasauth``::
 
     pip install djactasauth
 
