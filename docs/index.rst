@@ -20,8 +20,8 @@ Contents:
    quickstart
    extension-points
    supported-versions
+   license
    release-notes
-
 
 
 Indices and tables
