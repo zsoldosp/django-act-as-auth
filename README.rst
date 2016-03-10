@@ -1,8 +1,9 @@
-=============================
 Django Act As Auth Backend
-=============================
+==========================
 
 Django authentication that allows you to login as someone else
+
+.. quickstart start
 
 Quickstart
 ----------
@@ -36,3 +37,5 @@ in your ``urls.py``::
 
 Then you can log in with username ``your_superuser_name/customer`` and password
 ``yourpassword``.
+
+.. quickstart end
