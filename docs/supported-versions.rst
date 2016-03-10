@@ -9,8 +9,8 @@ Note however that currently it's pre 1.0, thus `minor` version
 changes can be backwards incompatible. I.e.: ``0.1.3`` and ``0.1.2``
 are compatible, but ``0.2.0`` and ``0.1.3`` are not.
 
-Django Versions
----------------
+Django Versions Support Philosophy
+----------------------------------
 
 The project aims to support the versions Django itself supports.
 
