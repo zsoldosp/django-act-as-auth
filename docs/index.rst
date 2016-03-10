@@ -6,6 +6,12 @@
 Welcome to Django Act As Auth's documentation!
 ==============================================
 
+.. include:: ../README.rst
+   :start-after: .. sales pitch start
+   :end-before: .. sales pitch end
+
+----
+
 Contents:
 
 .. toctree::

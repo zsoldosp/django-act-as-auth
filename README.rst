@@ -1,7 +1,14 @@
 Django Act As Auth Backend
 ==========================
 
-Django authentication that allows you to login as someone else
+.. sales pitch start
+
+Django authentication backend that allows one to login as someone else, 
+without having to know their passwords.
+
+Great for customer support and testing scenarios!
+
+.. sales pitch end
 
 .. quickstart start
 
