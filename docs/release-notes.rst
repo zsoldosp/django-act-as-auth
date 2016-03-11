@@ -4,7 +4,7 @@ Release Notes
 0.1.3
 -----
 
-  * explicitly add support for Django 1.5 and 1.6
+  * explicitly add support for Django 1.6 and 1.7
   * use Django's own bundled ``six`` instead of installing the external version
 
 0.1.2
