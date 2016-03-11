@@ -46,3 +46,43 @@ Then you can log in with username ``your_superuser_name/customer`` and password
 ``yourpassword``.
 
 .. quickstart end
+
+.. contributing start
+Contributing
+------------
+
+As an open source project, we welcome contributions.
+
+Reporting issues/improvements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Please open an `issue_ on github <https://github.com/PaesslerAG/django-act-as-auth/issues/>`_
+or provide a `pull request <https://github.com/PaesslerAG/django-act-as-auth/pulls/>`_
+whether for code or for the documentation.
+
+For non-trivial changes, we kindly ask you to open an issue, as it might be rejected.
+However, if the diff of a pull request better illustrates the point, feel free to make
+it a pull request anyway.
+
+Pull Requests
+~~~~~~~~~~~~~
+
+* for code changes
+
+  * it must have tests covering the change. You might be asked to cover missing scenarios
+  * the latest ``flake8`` will be run and shouldn't produce any warning
+  * if the change is significant enough, documentation has to be provided
+
+* if you are not there already, add yourself to the `Authors <authors>`_ file
+
+
+Code of Conduct
+~~~~~~~~~~~~~~~
+
+As it is a Django extension, it follows
+`Django's own Code of Conduct <https://www.djangoproject.com/conduct/>`_.
+As there is no mailing list yet, please just email one of the main authors
+(see ``setup.py`` file)
+
+
+.. contributing end

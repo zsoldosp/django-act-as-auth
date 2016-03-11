@@ -22,6 +22,8 @@ Contents:
    supported-versions
    license
    release-notes
+   contributing
+   authors
 
 
 Indices and tables
