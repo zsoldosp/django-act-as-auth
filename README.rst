@@ -57,7 +57,7 @@ As an open source project, we welcome contributions.
 Reporting issues/improvements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Please open an `issue_ on github <https://github.com/PaesslerAG/django-act-as-auth/issues/>`_
+Please open an `issue on github <https://github.com/PaesslerAG/django-act-as-auth/issues/>`_
 or provide a `pull request <https://github.com/PaesslerAG/django-act-as-auth/pulls/>`_
 whether for code or for the documentation.
 
