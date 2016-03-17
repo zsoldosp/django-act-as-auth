@@ -49,7 +49,7 @@ coverage:
 	open htmlcov/index.html
 
 tag: VERSION=$(shell python -c"import djactasauth as m; print(m.__version__)")
-tag: TAG:=v${VERSION}
+tag: TAG:=${VERSION}
 tag: exit_code:=$(shell git ls-remote origin | grep -q tags/${TAG}; echo $$?)
 tag:
 ifeq ($(exit_code),0)
