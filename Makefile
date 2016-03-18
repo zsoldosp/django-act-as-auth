@@ -1,4 +1,6 @@
-.PHONY: clean-pyc clean-build docs clean-tox
+TRAVIS_YML=.travis.yml
+TOX2TRAVIS=tox2travis.py
+.PHONY: clean-pyc clean-build docs clean-tox ${TRAVIS_YML} ci
 PYPI_SERVER?=https://pypi.python.org/pypi
 SHELL=/bin/bash
 
@@ -13,6 +15,14 @@ help:
 	@echo "tag - tag the current version and push it to origin"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
+	@echo "${TRAVIS_YML} - convert tox.ini to ${TRAVIS_YML}"
+
+ci: ${TRAVIS_YML} test-all
+
+${TRAVIS_YML}: tox.ini ${TOX2TRAVIS}
+	./${TOX2TRAVIS} > $@
+	git diff $@; echo $$?  # FYI
+	test 0 -eq $$(git diff $@ | wc -l)
 
 clean: clean-build clean-pyc clean-tox
 	cd docs && make clean
@@ -40,7 +50,7 @@ test:
 clean-tox:
 	if [[ -d .tox ]]; then rm -r .tox; fi
 
-test-all: clean-tox
+test-all:
 	tox
 
 coverage:
