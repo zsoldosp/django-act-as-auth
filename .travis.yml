@@ -9,6 +9,12 @@ matrix:
     - python: "2.7"
       env: TOX_ENVS=py27-django15,py27-django16,py27-django17,py27-django18,py27-django19
     - python: "3.4"
-      env: TOX_ENVS=py34-django15,py34-django16,py34-django17,py34-django18,py34-django19
+      env: TOX_ENVS=py34-django17,py34-django18,py34-django19
+    - python: "3.5"
+      env: TOX_ENVS=py35-django18,py35-django19
+    - python: "3.2"
+      env: TOX_ENVS=py32-django15,py32-django16,py32-django17,py32-django18
+    - python: "3.3"
+      env: TOX_ENVS=py33-django15,py33-django16,py33-django17,py33-django18
 script:
   - tox -e $TOX_ENVS
