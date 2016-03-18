@@ -11,6 +11,15 @@ Great for customer support and testing scenarios!
 
 .. sales pitch end
 
+.. raw:: html
+
+    <a href="https://travis-ci.org/PaesslerAG/django-act-as-auth" >
+       <img src="https://travis-ci.org/PaesslerAG/django-act-as-auth.svg?branch=master"/>
+    </a>
+    <a href="http://django-act-as-auth.readthedocs.org/" >
+       <img src="https://readthedocs.org/projects/django-act-as-auth/badge/?version=latest"/>
+    </a>
+
 .. quickstart start
 
 Quickstart
