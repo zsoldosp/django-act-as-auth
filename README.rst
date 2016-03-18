@@ -11,6 +11,15 @@ Great for customer support and testing scenarios!
 
 .. sales pitch end
 
+.. raw:: html
+
+    <a href="https://travis-ci.org/PaesslerAG/django-act-as-auth" >
+       <img src="https://travis-ci.org/PaesslerAG/django-act-as-auth.svg?branch=master"/>
+    </a>
+    <a href="http://django-act-as-auth.readthedocs.org/" >
+       <img src="https://readthedocs.org/projects/django-act-as-auth/badge/?version=latest"/>
+    </a>
+
 .. quickstart start
 
 Quickstart
@@ -76,6 +85,18 @@ Pull Requests
 
 * if you are not there already, add yourself to the `Authors <authors>`_ file
 
+Setting up all Python versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: bash
+
+    sudo apt-get -y install software-properties-common
+    sudo add-apt-repository ppa:fkrull/deadsnakes
+    sudo apt-get update
+    for version in 3.2 3.3 3.5; do
+      py=python$version
+      sudo apt-get -y install ${py} ${py}-dev
+    done
 
 Code of Conduct
 ~~~~~~~~~~~~~~~
