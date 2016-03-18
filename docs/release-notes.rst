@@ -6,6 +6,9 @@ Release Notes
 
   * explicitly add support for Django 1.6 and 1.7
   * use Django's own bundled ``six`` instead of installing the external version
+  * explicity add support for Django's own supported Python version, i.e.:
+    Python 3.3 and 3.5 too (dropped 3.2 support as the travis build failed
+    during setup)
 
 0.1.2
 -----
