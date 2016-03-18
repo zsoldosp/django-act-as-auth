@@ -14,7 +14,8 @@ help:
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
 
-clean: clean-build clean-pyc clean-tox docs
+clean: clean-build clean-pyc clean-tox
+	cd docs && make clean
 
 docs:
 	cd docs && make html
