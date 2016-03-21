@@ -55,6 +55,7 @@ Then you can log in with username ``your_superuser_name/customer`` and password
 .. quickstart end
 
 .. contributing start
+
 Contributing
 ------------
 
