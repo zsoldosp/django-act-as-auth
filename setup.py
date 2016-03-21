@@ -17,14 +17,9 @@ if sys.argv[-1] == 'publish':
     os.system('make release')
     sys.exit()
 
-readme = open('README.rst').read()
-description = 'Django authentication allowing admins to login as another user'
-
 setup(
     name='djactasauth',
     version=version,
-    description=description,
-    long_description=readme,
     author='Paessler AG',
     url='https://github.com/PaesslerAG/django-act-as-auth',
     packages=[
