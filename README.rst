@@ -1,3 +1,5 @@
+.
+
 Django Act As Auth Backend
 ==========================
 
@@ -11,14 +13,11 @@ Great for customer support and testing scenarios!
 
 .. sales pitch end
 
-.. raw:: html
+.. image:: https://travis-ci.org/PaesslerAG/django-act-as-auth.svg?branch=master
+        :target: https://travis-ci.org/PaesslerAG/django-act-as-auth
 
-    <a href="https://travis-ci.org/PaesslerAG/django-act-as-auth" >
-       <img src="https://travis-ci.org/PaesslerAG/django-act-as-auth.svg?branch=master"/>
-    </a>
-    <a href="http://django-act-as-auth.readthedocs.org/" >
-       <img src="https://readthedocs.org/projects/django-act-as-auth/badge/?version=latest"/>
-    </a>
+.. image:: https://readthedocs.org/projects/django-act-as-auth/badge/?version=latest
+        :target: http://django-act-as-auth.readthedocs.org/
 
 .. quickstart start
 
@@ -58,6 +57,7 @@ Then you can log in with username ``your_superuser_name/customer`` and password
 .. quickstart end
 
 .. contributing start
+
 Contributing
 ------------
 

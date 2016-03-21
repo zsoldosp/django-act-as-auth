@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+0.1.4
+-----
+
+  * first public release to pypi
+  * fixed ``README.rst`` to look OK on https://pypi.python.org
+
 0.1.3
 -----
 
