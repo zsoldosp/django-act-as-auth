@@ -63,6 +63,8 @@ Contributing
 
 As an open source project, we welcome contributions.
 
+The code lives on `github <https://github.com/PaesslerAG/django-act-as-auth>`_.
+
 Reporting issues/improvements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
