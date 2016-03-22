@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.5
+-----
+
+  * fix ``description`` on https://pypi.python.org
+
 0.1.4
 -----
 
