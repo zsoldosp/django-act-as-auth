@@ -73,7 +73,6 @@ release: clean tag
 	echo "if the release fails, setup a ~/pypirc file as per https://docs.python.org/2/distutils/packageindex.html#pypirc"
 	python setup.py register -r ${PYPI_SERVER}
 	python setup.py sdist upload -r ${PYPI_SERVER}
-	python setup.py bdist_wheel upload -r ${PYPI_SERVER}
 
 sdist: clean
 	python setup.py sdist
