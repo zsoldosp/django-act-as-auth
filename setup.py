@@ -19,6 +19,7 @@ if sys.argv[-1] == 'publish':
 
 setup(
     name='djactasauth',
+    description = 'Django authentication backend allowing admins to login as another user',
     version=version,
     author='Paessler AG',
     url='https://github.com/PaesslerAG/django-act-as-auth',
