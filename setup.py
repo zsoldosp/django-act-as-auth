@@ -17,9 +17,12 @@ if sys.argv[-1] == 'publish':
     os.system('make release')
     sys.exit()
 
+description = \
+    'Django authentication backend allowing admins to login as another user'
+
 setup(
     name='djactasauth',
-    description = 'Django authentication backend allowing admins to login as another user',
+    description=description,
     version=version,
     author='Paessler AG',
     url='https://github.com/PaesslerAG/django-act-as-auth',
