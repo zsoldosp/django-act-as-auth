@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.6
+-----
+
+  * add support for Django 1.10
+
 0.1.5
 -----
 
