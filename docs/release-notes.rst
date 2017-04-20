@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.7
+-----
+
+  * add support for Django 1.11 and thus python 3.6
+
 0.1.6
 -----
 
