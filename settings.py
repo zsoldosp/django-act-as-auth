@@ -1,7 +1,9 @@
 # Django settings for autodata project.
+import django
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+if django.VERSION[:2] < (1, 8):
+    TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {

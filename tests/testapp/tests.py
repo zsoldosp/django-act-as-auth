@@ -1,3 +1,4 @@
+import django
 from django.utils.six.moves.urllib import parse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
@@ -17,6 +18,14 @@ def create_user(
     user.set_password(password)
     user.save()
     return user
+
+
+def auth_through_backend(backend, **kwargs):
+    if django.VERSION[:2] >= (1, 11):
+        args = [None]  # request
+    else:
+        args = []
+    return backend.authenticate(*args, **kwargs)
 
 
 class FilteredBackendTestCase(TransactionTestCase):
@@ -64,8 +73,8 @@ class FilteredBackendTestCase(TransactionTestCase):
 
         def authenticate(user, filter_kwargs):
             backend = TestFilteredBackend(filter_kwargs)
-            return backend.authenticate(
-                username=user.username, password='password')
+            return auth_through_backend(
+                backend=backend, username=user.username, password='password')
 
         run_scenarios_with(authenticate)
 
@@ -202,7 +211,8 @@ class ActAsModelBackendTestCase(TransactionTestCase):
                     return True
             backend_cls = EveryoneCanActAs
 
-        return backend_cls().authenticate(username=username, password=password)
+        return auth_through_backend(
+            backend_cls(), username=username, password=password)
 
 
 @override_settings(
