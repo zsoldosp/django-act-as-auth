@@ -90,7 +90,7 @@ Pull Requests
 Setting up all Python versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: bash
+::
 
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository ppa:fkrull/deadsnakes
