@@ -1,6 +1,6 @@
 TRAVIS_YML=.travis.yml
 TOX2TRAVIS=tox2travis.py
-.PHONY: clean-pyc clean-build docs clean-tox ${TRAVIS_YML} ci
+.PHONY: clean-pyc clean-build docs clean-tox ${TRAVIS_YML} ci no-readme-errors
 PYPI_SERVER?=https://pypi.python.org/pypi
 SHELL=/bin/bash
 
@@ -26,6 +26,11 @@ ${TRAVIS_YML}: tox.ini ${TOX2TRAVIS}
 
 clean: clean-build clean-pyc clean-tox
 	cd docs && make clean
+
+no-readme-errors:
+	rst2html.py README.rst > /dev/null 2> $@
+	cat $@
+	test 0 -eq `cat $@ | wc -l`
 
 docs:
 	cd docs && make html
