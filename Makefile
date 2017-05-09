@@ -47,7 +47,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 djactasauth tests
+	flake8 djactasauth tests --max-complexity=7
 
 test:
 	python manage.py test testapp --traceback
