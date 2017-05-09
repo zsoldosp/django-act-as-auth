@@ -1,10 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.utils.six.moves.urllib import parse
-from djactasauth.backends import ActAsModelBackend
+from djactasauth.backends import ActAsBackend
 
 
 def act_as_login_url(auth, act_as, **query):
-    username = ActAsModelBackend.sepchar.join([auth, act_as])
+    username = ActAsBackend.sepchar.join([auth, act_as])
     return get_login_url(username=username, **query)
 
 
