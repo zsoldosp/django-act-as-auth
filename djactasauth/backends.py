@@ -60,9 +60,10 @@ class ActAsBackend(object):
                 username=username, password=password, **kwargs)
 
     def _authenticate(self, username=None, password=None, **kwargs):
+        assert password is not None
+        from django.contrib.auth import get_backends
         if not self.is_act_as_username(username):
             return None
-        from django.contrib.auth import get_backends
         for backend in get_backends():
             if not isinstance(backend, ActAsBackend):
                 auth_username, act_as_username = username.split(self.sepchar)

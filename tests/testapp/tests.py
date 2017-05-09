@@ -1,5 +1,6 @@
 import django
 from django.utils.six.moves.urllib import parse
+from django.contrib import auth
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
@@ -12,6 +13,8 @@ from djactasauth.backends import \
 from djactasauth.util import act_as_login_url, get_login_url
 from testapp.sixmock import patch
 
+django_11_or_later = django.VERSION[:2] >= (1, 11)
+
 
 def create_user(
         username, password='password', is_superuser=False, is_staff=False):
@@ -22,7 +25,7 @@ def create_user(
 
 
 def auth_through_backend(backend, **kwargs):
-    if django.VERSION[:2] >= (1, 11):
+    if django_11_or_later:
         args = [None]  # request
     else:
         args = []
@@ -86,6 +89,8 @@ class TestableBackend(object):
         self.reset()
 
     def authenticate(self, *a, **kw):
+        if django_11_or_later:
+            kw.pop('request')
         self.calls.append((a, kw))
         return self.authenticated_user
 
@@ -109,8 +114,10 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
         ]
 
     def patched_get_backends(self):
+        method_to_patch = \
+            '_get_backends' if django_11_or_later else 'get_backends'
         return patch(
-            'django.contrib.auth.get_backends',
+            'django.contrib.auth.{}'.format(method_to_patch),
             return_value=self.backends
         )
 
@@ -122,7 +129,7 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
 
     def test_it_tries_all_other_configured_backends(self):
         with self.patched_get_backends():
-            self.act_as_auth_backend.authenticate('foo/bar', 'password')
+            auth_through_backend(self.act_as_auth_backend, username='foo/bar', password='password')
         self.assertEqual(
             [(tuple(), {'password': 'password', 'username': 'foo'})],
             self.first_test_backend.calls)
@@ -135,7 +142,7 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
         # TODO: probable need to patch out ActAsBackend.get_act_as_user too
         self.first_test_backend.authenticated_user = User()
         with self.patched_get_backends():
-            self.act_as_auth_backend.authenticate('foo/bar', 'password')
+            auth_through_backend(self.act_as_auth_backend, username='foo/bar', password='password')
         self.assertEqual(
             [(tuple(), {'password': 'password', 'username': 'foo'})],
             self.first_test_backend.calls)
@@ -144,7 +151,7 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
     def test_cannot_authenticate_regular_user(self):
         with self.patched_get_backends():
             self.assertEqual(
-                None, self.act_as_auth_backend.authenticate('foo', 'password'))
+                None, auth_through_backend(self.act_as_auth_backend, username='foo', password='password'))
         self.assertEqual([], self.first_test_backend.calls)
         self.assertEqual([], self.second_test_backend.calls)
 
