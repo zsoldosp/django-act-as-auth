@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import django
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth import get_user_model
-from django.contrib.auth import get_backends
+from django.contrib import auth
 
 _authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
 
@@ -65,7 +64,7 @@ class ActAsBackend(object):
         assert password is not None
         if not self.is_act_as_username(username):
             return None
-        for backend in get_backends():
+        for backend in auth.get_backends():
             if not isinstance(backend, ActAsBackend):
                 auth_username, act_as_username = username.split(self.sepchar)
                 auth_user = backend.authenticate(
@@ -76,7 +75,7 @@ class ActAsBackend(object):
 
     def fail_unless_one_aaa_backend_is_configured(self):
         aaa_backends = list(
-            type(backend) for backend in get_backends()
+            type(backend) for backend in auth.get_backends()
             if isinstance(backend, ActAsBackend))
         if len(aaa_backends) != 1:
             raise ValueError(
@@ -85,7 +84,7 @@ class ActAsBackend(object):
 
     def get_act_as_user(self, auth_user, act_as_username):
         if auth_user.username != act_as_username:
-            UserModel = get_user_model()
+            UserModel = auth.get_user_model()
             try:
                 user = self._get_user_manager().get_by_natural_key(
                     act_as_username)
@@ -98,7 +97,7 @@ class ActAsBackend(object):
         return user
 
     def _get_user_manager(self):
-        UserModel = get_user_model()
+        UserModel = auth.get_user_model()
         return UserModel._default_manager
 
     def can_act_as(self, auth_user, user):
