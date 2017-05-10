@@ -17,17 +17,15 @@ as its parent, ``django.contrib.auth.backends.ModelBackend``.
 An empty dictionary (``{}``) is also a valid value for filters, again,
 the behavior is the same as if no such field was specifiec.
 
-``ActAsModelBackend``
+``ActAsBackend``
 .....................
 
-This is a subclass of ``djactasauth.backends.FilteredModelBackend``.
-
 You can have precise control over which user can act as which other kind
-of user, by subclassing ``djactasauth.backends.ActAsModelBackend``, and describing your policy
+of user, by subclassing ``djactasauth.backends.ActAsBackend``, and describing your policy
 by overwriting the ``can_act_as(self, auth_user, user)`` method. For an
-example, see ``djactasauth.backends.OnlySuperuserCanActAsModelBackend``.
+example, see ``djactasauth.backends.OnlySuperuserCanActAsBackend``.
 
-``ActAsModelBackend`` by default doesn't allow anyone to act-as, so there
+``ActAsBackend`` by default doesn't allow anyone to act-as, so there
 is no chance for misconfiguration.
 
 

@@ -33,7 +33,7 @@ Add it to your auth backends in ``settings``::
     import djactasauth
     AUTHENTICATION_BACKENDS = (
         ...,
-        'djactasauth.backends.OnlySuperuserCanActAsModelBackend',
+        'djactasauth.backends.OnlySuperuserCanActAsBackend',
         ...,
     )
 
