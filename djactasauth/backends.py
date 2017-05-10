@@ -2,6 +2,7 @@
 import django
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
+from django.contrib.auth import get_backends
 
 _authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
 
@@ -60,17 +61,10 @@ class ActAsBackend(object):
                 username=username, password=password, **kwargs)
 
     def _authenticate(self, username=None, password=None, **kwargs):
+        self.fail_unless_one_aaa_backend_is_configured()
         assert password is not None
-        from django.contrib.auth import get_backends
         if not self.is_act_as_username(username):
             return None
-        aaa_backends = list(
-            type(backend) for backend in get_backends()
-            if isinstance(backend, ActAsBackend))
-        if len(aaa_backends) != 1:
-            raise ValueError(
-                'There should be exactly one AAA backend configured, '
-                'but there were {}'.format(aaa_backends))
         for backend in get_backends():
             if not isinstance(backend, ActAsBackend):
                 auth_username, act_as_username = username.split(self.sepchar)
@@ -79,6 +73,15 @@ class ActAsBackend(object):
                 if auth_user:
                     return self.get_act_as_user(
                         auth_user=auth_user, act_as_username=act_as_username)
+
+    def fail_unless_one_aaa_backend_is_configured(self):
+        aaa_backends = list(
+            type(backend) for backend in get_backends()
+            if isinstance(backend, ActAsBackend))
+        if len(aaa_backends) != 1:
+            raise ValueError(
+                'There should be exactly one AAA backend configured, '
+                'but there were {}'.format(aaa_backends))
 
     def get_act_as_user(self, auth_user, act_as_username):
         if auth_user.username != act_as_username:
