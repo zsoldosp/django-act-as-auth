@@ -98,6 +98,15 @@ class TestableBackend(object):
         self.authenticated_user = None
 
 
+def patched_get_backends(backends):
+    method_to_patch = \
+        '_get_backends' if django_11_or_later else 'get_backends'
+    return patch(
+        'django.contrib.auth.{}'.format(method_to_patch),
+        return_value=backends
+    )
+
+
 class ActAsBackendAuthenticateTestCase(TransactionTestCase):
 
     def setUp(self):
@@ -113,12 +122,7 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
         ]
 
     def patched_get_backends(self):
-        method_to_patch = \
-            '_get_backends' if django_11_or_later else 'get_backends'
-        return patch(
-            'django.contrib.auth.{}'.format(method_to_patch),
-            return_value=self.backends
-        )
+        return patched_get_backends(self.backends)
 
     def test_does_not_inherit_from_any_backend(self):
         self.assertEqual(
