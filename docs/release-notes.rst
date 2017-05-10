@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-0.1.8
+0.2.0
 -----
 
    * BACKWARDS INCOMPATIBLE: not inheritin from ``ModelBackend``,
