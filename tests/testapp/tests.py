@@ -130,6 +130,23 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
             ActAsBackend.__mro__
         )
 
+    def test_fails_if_multiple_act_as_backends_are_configured(self):
+        """
+        while I can see how one could like to have multiple rules for
+        when one can becomes another user, I foresee complexity, unexpected
+        bugs, corner cases, etc. and thus would much rather place the burden
+        of managing the complexity/interaction between these various rules
+        on the user of this library - break the rules apart into multiple
+        methods, and compose them in your own code, so this library can
+        remain simple
+        """
+        self.backends.append(ActAsBackend())
+        with self.patched_get_backends():
+            with self.assertRaises(ValueError):
+                auth_through_backend(
+                    self.act_as_auth_backend,
+                    username='foo/bar', password='password')
+
     def test_it_tries_all_other_configured_backends(self):
         with self.patched_get_backends():
             auth_through_backend(
@@ -285,8 +302,10 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
                     return True
             backend_cls = EveryoneCanActAs
 
-        return auth_through_backend(
-            backend_cls(), username=username, password=password)
+        backend = backend_cls()
+        with patched_get_backends([backend, ModelBackend()]):
+            return auth_through_backend(
+                backend, username=username, password=password)
 
 
 @override_settings(

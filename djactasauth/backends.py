@@ -64,6 +64,13 @@ class ActAsBackend(object):
         from django.contrib.auth import get_backends
         if not self.is_act_as_username(username):
             return None
+        aaa_backends = list(
+            type(backend) for backend in get_backends()
+            if isinstance(backend, ActAsBackend))
+        if len(aaa_backends) != 1:
+            raise ValueError(
+                'There should be exactly one AAA backend configured, '
+                'but there were {}'.format(aaa_backends))
         for backend in get_backends():
             if not isinstance(backend, ActAsBackend):
                 auth_username, act_as_username = username.split(self.sepchar)
