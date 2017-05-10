@@ -7,12 +7,14 @@ install:
 matrix:
   include:
     - python: "2.7"
-      env: TOX_ENVS=py27-django15,py27-django16,py27-django17,py27-django18,py27-django19,py27-django110
-    - python: "3.4"
-      env: TOX_ENVS=py34-django17,py34-django18,py34-django19,py34-django110
-    - python: "3.5"
-      env: TOX_ENVS=py35-django18,py35-django19,py35-django110
+      env: TOX_ENVS=py27-django110,py27-django111,py27-django15,py27-django16,py27-django17,py27-django18,py27-django19
     - python: "3.3"
       env: TOX_ENVS=py33-django15,py33-django16,py33-django17,py33-django18
+    - python: "3.4"
+      env: TOX_ENVS=py34-django110,py34-django111,py34-django17,py34-django18,py34-django19
+    - python: "3.5"
+      env: TOX_ENVS=py35-django110,py35-django111,py35-django18,py35-django19
+    - python: "3.6"
+      env: TOX_ENVS=py36-django111
 script:
   - tox -e $TOX_ENVS
