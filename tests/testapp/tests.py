@@ -161,7 +161,6 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
         self.assertEqual([], self.third_test_backend_not_in_get_backends.calls)
 
     def test_first_successful_backend_returned_later_ones_not_called(self):
-        # TODO: probable need to patch out ActAsBackend.get_act_as_user too
         self.first_test_backend.authenticated_user = User()
         with self.patched_get_backends():
             auth_through_backend(
