@@ -4,11 +4,11 @@ Release Notes
 0.2.0
 -----
 
-   * BACKWARDS INCOMPATIBLE: not inheritin from ``ModelBackend``,
+   * BACKWARDS INCOMPATIBLE: not inheriting from ``ModelBackend``,
      but rather working in addition to the existing
-     ``settings.AUTHENITCATION_BACKENDS``
+     ``settings.AUTHENTICATION_BACKENDS``
    * BACKWARDS INCOMPATIBLE: only one act-as-auth backend can be
-     configured for ``settings.AUTHENITCATION_BACKENDS``
+     configured for ``settings.AUTHENTICATION_BACKENDS``
 
 0.1.7
 -----
