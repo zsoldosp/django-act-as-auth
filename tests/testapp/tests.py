@@ -1,6 +1,5 @@
 import django
 from django.utils.six.moves.urllib import parse
-from django.contrib import auth
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
@@ -129,7 +128,9 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
 
     def test_it_tries_all_other_configured_backends(self):
         with self.patched_get_backends():
-            auth_through_backend(self.act_as_auth_backend, username='foo/bar', password='password')
+            auth_through_backend(
+                self.act_as_auth_backend,
+                username='foo/bar', password='password')
         self.assertEqual(
             [(tuple(), {'password': 'password', 'username': 'foo'})],
             self.first_test_backend.calls)
@@ -142,7 +143,9 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
         # TODO: probable need to patch out ActAsBackend.get_act_as_user too
         self.first_test_backend.authenticated_user = User()
         with self.patched_get_backends():
-            auth_through_backend(self.act_as_auth_backend, username='foo/bar', password='password')
+            auth_through_backend(
+                self.act_as_auth_backend,
+                username='foo/bar', password='password')
         self.assertEqual(
             [(tuple(), {'password': 'password', 'username': 'foo'})],
             self.first_test_backend.calls)
@@ -151,7 +154,10 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
     def test_cannot_authenticate_regular_user(self):
         with self.patched_get_backends():
             self.assertEqual(
-                None, auth_through_backend(self.act_as_auth_backend, username='foo', password='password'))
+                None,
+                auth_through_backend(
+                    self.act_as_auth_backend,
+                    username='foo', password='password'))
         self.assertEqual([], self.first_test_backend.calls)
         self.assertEqual([], self.second_test_backend.calls)
 
