@@ -8,8 +8,11 @@ from django.test import TransactionTestCase
 from django.test.utils import override_settings
 
 from djactasauth.backends import \
-    FilteredModelBackend, ActAsModelBackend, OnlySuperuserCanActAsModelBackend
+    FilteredModelBackend, ActAsBackend, OnlySuperuserCanActAsBackend
 from djactasauth.util import act_as_login_url, get_login_url
+from testapp.sixmock import patch
+
+django_11_or_later = django.VERSION[:2] >= (1, 11)
 
 
 def create_user(
@@ -21,7 +24,7 @@ def create_user(
 
 
 def auth_through_backend(backend, **kwargs):
-    if django.VERSION[:2] >= (1, 11):
+    if django_11_or_later:
         args = [None]  # request
     else:
         args = []
@@ -79,17 +82,104 @@ class FilteredBackendTestCase(TransactionTestCase):
         run_scenarios_with(authenticate)
 
 
-class ActAsModelBackendTestCase(TransactionTestCase):
+class TestableBackend(object):
 
-    def test_it_is_a_filtered_model_backend(self):
-        self.assertTrue(
-            issubclass(ActAsModelBackend, FilteredModelBackend),
-            ActAsModelBackend.__mro__)
+    def __init__(self):
+        self.reset()
 
-    def test_can_authenticate_user(self):
-        user = create_user(username='user', password='password')
+    def authenticate(self, *a, **kw):
+        if django_11_or_later:
+            kw.pop('request')
+        self.calls.append((a, kw))
+        return self.authenticated_user
+
+    def reset(self):
+        self.calls = []
+        self.authenticated_user = None
+
+
+def patched_get_backends(backends):
+    method_to_patch = \
+        '_get_backends' if django_11_or_later else 'get_backends'
+    return patch(
+        'django.contrib.auth.{}'.format(method_to_patch),
+        return_value=backends
+    )
+
+
+class ActAsBackendAuthenticateTestCase(TransactionTestCase):
+
+    def setUp(self):
+        super(ActAsBackendAuthenticateTestCase, self).setUp()
+        self.first_test_backend = TestableBackend()
+        self.second_test_backend = TestableBackend()
+        self.third_test_backend_not_in_get_backends = TestableBackend()
+        self.act_as_auth_backend = ActAsBackend()
+        self.backends = [
+            self.first_test_backend,
+            self.act_as_auth_backend,
+            self.second_test_backend
+        ]
+
+    def patched_get_backends(self):
+        return patched_get_backends(self.backends)
+
+    def test_does_not_inherit_from_any_backend(self):
         self.assertEqual(
-            user, self.authenticate(username='user', password='password'))
+            (ActAsBackend, object),
+            ActAsBackend.__mro__
+        )
+
+    def test_fails_if_multiple_act_as_backends_are_configured(self):
+        """
+        while I can see how one could like to have multiple rules for
+        when one can becomes another user, I foresee complexity, unexpected
+        bugs, corner cases, etc. and thus would much rather place the burden
+        of managing the complexity/interaction between these various rules
+        on the user of this library - break the rules apart into multiple
+        methods, and compose them in your own code, so this library can
+        remain simple
+        """
+        self.backends.append(ActAsBackend())
+        with self.patched_get_backends():
+            with self.assertRaises(ValueError):
+                auth_through_backend(
+                    self.act_as_auth_backend,
+                    username='foo/bar', password='password')
+
+    def test_it_tries_all_other_configured_backends(self):
+        with self.patched_get_backends():
+            auth_through_backend(
+                self.act_as_auth_backend,
+                username='foo/bar', password='password')
+        self.assertEqual(
+            [(tuple(), {'password': 'password', 'username': 'foo'})],
+            self.first_test_backend.calls)
+        self.assertEqual(
+            [(tuple(), {'password': 'password', 'username': 'foo'})],
+            self.second_test_backend.calls)
+        self.assertEqual([], self.third_test_backend_not_in_get_backends.calls)
+
+    def test_first_successful_backend_returned_later_ones_not_called(self):
+        self.first_test_backend.authenticated_user = User()
+        with self.patched_get_backends():
+            auth_through_backend(
+                self.act_as_auth_backend,
+                username='foo/bar', password='password')
+        self.assertEqual(
+            [(tuple(), {'password': 'password', 'username': 'foo'})],
+            self.first_test_backend.calls)
+        self.assertEqual([], self.second_test_backend.calls)
+
+    def test_cannot_authenticate_regular_user(self):
+        with self.patched_get_backends():
+            self.assertEqual(
+                None,
+                auth_through_backend(
+                    self.act_as_auth_backend,
+                    username='foo', password='password'))
+        self.assertEqual([], self.first_test_backend.calls)
+        self.assertEqual([], self.second_test_backend.calls)
 
     def test_can_become_another_user_with_own_password(self):
         create_user(username='admin', password='admin password')
@@ -136,35 +226,35 @@ class ActAsModelBackendTestCase(TransactionTestCase):
         self.assertEqual(
             None, self.authenticate(
                 username='user/admin1', password='user password',
-                backend_cls=OnlySuperuserCanActAsModelBackend))
+                backend_cls=OnlySuperuserCanActAsBackend))
         self.assertEqual(
             None, self.authenticate(
                 username='user/admin2', password='user password',
-                backend_cls=OnlySuperuserCanActAsModelBackend))
+                backend_cls=OnlySuperuserCanActAsBackend))
 
         self.assertEqual(
             user, self.authenticate(
-                backend_cls=OnlySuperuserCanActAsModelBackend,
+                backend_cls=OnlySuperuserCanActAsBackend,
                 username='admin1/user', password='admin1 password'))
         self.assertEqual(
             user, self.authenticate(
-                backend_cls=OnlySuperuserCanActAsModelBackend,
+                backend_cls=OnlySuperuserCanActAsBackend,
                 username='admin2/user', password='admin2 password'))
 
         self.assertEqual(
             None, self.authenticate(
-                backend_cls=OnlySuperuserCanActAsModelBackend,
+                backend_cls=OnlySuperuserCanActAsBackend,
                 username='admin1/admin2', password='admin1 password'))
         self.assertEqual(
             None, self.authenticate(
-                backend_cls=OnlySuperuserCanActAsModelBackend,
+                backend_cls=OnlySuperuserCanActAsBackend,
                 username='admin2/admin1', password='admin2 password'))
 
     def test_can_customize_can_act_as_policy_by_subclassing(self):
         alice = create_user(username='alice', password='alice')
         create_user(username='bob', password='bob')
 
-        class OnlyShortUserNamesCanActAs(ActAsModelBackend):
+        class OnlyShortUserNamesCanActAs(ActAsBackend):
 
             def can_act_as(self, auth_user, user):
                 return len(auth_user.username) <= 3
@@ -181,7 +271,7 @@ class ActAsModelBackendTestCase(TransactionTestCase):
     def test_when_users_none_doesnt_crash_process(self):
         create_user(username='jane', password='doe')
 
-        class ShouldNotCallCanActAs(ActAsModelBackend):
+        class ShouldNotCallCanActAs(ActAsBackend):
 
             def can_act_as(backend_self, auth_user, user):
                 self.fail('should not have called')
@@ -195,7 +285,7 @@ class ActAsModelBackendTestCase(TransactionTestCase):
         def assert_classification(username, expected_to_be_act_as_username):
             self.assertEqual(
                 expected_to_be_act_as_username,
-                ActAsModelBackend.is_act_as_username(username))
+                ActAsBackend.is_act_as_username(username))
 
         assert_classification(None, False)
         assert_classification('', False)
@@ -206,18 +296,21 @@ class ActAsModelBackendTestCase(TransactionTestCase):
 
     def authenticate(self, username, password, backend_cls=None):
         if not backend_cls:
-            class EveryoneCanActAs(ActAsModelBackend):
+            class EveryoneCanActAs(ActAsBackend):
                 def can_act_as(self, auth_user, user):
                     return True
             backend_cls = EveryoneCanActAs
 
-        return auth_through_backend(
-            backend_cls(), username=username, password=password)
+        backend = backend_cls()
+        with patched_get_backends([backend, ModelBackend()]):
+            return auth_through_backend(
+                backend, username=username, password=password)
 
 
 @override_settings(
     AUTHENTICATION_BACKENDS=[
-        'djactasauth.backends.OnlySuperuserCanActAsModelBackend'])
+        'djactasauth.backends.OnlySuperuserCanActAsBackend',
+        'django.contrib.auth.backends.ModelBackend'])
 class EndToEndActAsThroughFormAndView(TransactionTestCase):
 
     def test_login_page_is_set_up_as_expected(self):
@@ -287,7 +380,10 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.goto_login_page(**query)
 
         self.submit_login(username=username, password=password, **query)
-        self.assertEqual(302, self.login_post_response.status_code)
+        response_content = self.login_post_response.content.decode('ascii')
+        self.assertEqual(
+            302, self.login_post_response.status_code,
+            (username, password, response_content))
 
         self.get_whoami_page()
         self.assertEqual(

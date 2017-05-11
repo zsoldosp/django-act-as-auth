@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import django
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth import get_user_model
+from django.contrib import auth
 
 _authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
 
@@ -38,7 +38,7 @@ class FilteredModelBackend(ModelBackend):
         return user
 
 
-class ActAsModelBackend(FilteredModelBackend):
+class ActAsBackend(object):
 
     sepchar = '/'
 
@@ -60,19 +60,33 @@ class ActAsModelBackend(FilteredModelBackend):
                 username=username, password=password, **kwargs)
 
     def _authenticate(self, username=None, password=None, **kwargs):
-        if self.is_act_as_username(username):
-            auth_username, act_as_username = username.split(self.sepchar)
-        else:
-            auth_username = act_as_username = username
+        self.fail_unless_one_aaa_backend_is_configured()
+        assert password is not None
+        if not self.is_act_as_username(username):
+            return None
+        for backend in auth.get_backends():
+            if not isinstance(backend, ActAsBackend):
+                auth_username, act_as_username = username.split(self.sepchar)
+                auth_user = backend.authenticate(
+                    username=auth_username, password=password, **kwargs)
+                if auth_user:
+                    return self.get_act_as_user(
+                        auth_user=auth_user, act_as_username=act_as_username)
 
-        auth_user = super(ActAsModelBackend, self)._authenticate(
-                username=auth_username, password=password, **kwargs)
-        if not auth_user:
-            return auth_user
-        if auth_username != act_as_username:
-            UserModel = get_user_model()
+    def fail_unless_one_aaa_backend_is_configured(self):
+        aaa_backends = list(
+            type(backend) for backend in auth.get_backends()
+            if isinstance(backend, ActAsBackend))
+        if len(aaa_backends) != 1:
+            raise ValueError(
+                'There should be exactly one AAA backend configured, '
+                'but there were {}'.format(aaa_backends))
+
+    def get_act_as_user(self, auth_user, act_as_username):
+        if auth_user.username != act_as_username:
+            UserModel = auth.get_user_model()
             try:
-                user = UserModel._default_manager.get_by_natural_key(
+                user = self._get_user_manager().get_by_natural_key(
                     act_as_username)
             except UserModel.DoesNotExist:
                 return None
@@ -82,10 +96,17 @@ class ActAsModelBackend(FilteredModelBackend):
             user = auth_user
         return user
 
+    def _get_user_manager(self):
+        UserModel = auth.get_user_model()
+        return UserModel._default_manager
+
     def can_act_as(self, auth_user, user):
         return False
 
+    def get_user(self, user_id):
+        return self._get_user_manager().get(pk=user_id)
 
-class OnlySuperuserCanActAsModelBackend(ActAsModelBackend):
+
+class OnlySuperuserCanActAsBackend(ActAsBackend):
     def can_act_as(self, auth_user, user):
         return auth_user.is_superuser and not user.is_superuser

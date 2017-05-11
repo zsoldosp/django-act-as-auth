@@ -19,10 +19,12 @@ help:
 
 ci: ${TRAVIS_YML} test-all
 
+${TRAVIS_YML}: DIFF_CMD=diff ${TRAVIS_YML} ${OUTFILE}
+${TRAVIS_YML}: OUTFILE=${TRAVIS_YML}.generated
 ${TRAVIS_YML}: tox.ini ${TOX2TRAVIS}
-	./${TOX2TRAVIS} > $@
-	git diff $@; echo $$?  # FYI
-	test 0 -eq $$(git diff $@ | wc -l)
+	./${TOX2TRAVIS} > ${OUTFILE}
+	${DIFF_CMD}; echo $$?  # FYI
+	test 0 -eq $$(${DIFF_CMD} | wc -l)
 
 clean: clean-build clean-pyc clean-tox
 	cd docs && make clean
@@ -47,7 +49,8 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 djactasauth tests
+	flake8 tests
+	flake8 djactasauth --max-complexity=6
 
 test:
 	python manage.py test testapp --traceback

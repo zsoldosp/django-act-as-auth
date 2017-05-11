@@ -10,7 +10,8 @@ class ToxToTravis:
 
     def parse_tox(self):
         proc = subprocess.Popen(
-            "tox -l", shell=True, stdout=subprocess.PIPE, cwd=self.cwd)
+            "tox -l", shell=True, stdout=subprocess.PIPE, cwd=self.cwd,
+            universal_newlines=True)
         self.tox_lines = proc.stdout.read().strip().split('\n')
         self.parse_python_versions()
 
@@ -50,13 +51,14 @@ class ToxToTravis:
             py33='3.3',
             py34='3.4',
             py35='3.5',
+            py36='3.6',
         )
         output = [
             'matrix:',
             '  include:',
         ]
-        for tox_py, djangos in self.tox_py_to_djangos.items():
-            tox_envs_gen = ('-'.join((tox_py, d)) for d in djangos)
+        for tox_py, djangos in sorted(self.tox_py_to_djangos.items()):
+            tox_envs_gen = ('-'.join((tox_py, d)) for d in sorted(djangos))
             item = [
                 '    - python: "%s"' % self.tox2travis_py[tox_py],
                 '      env: TOX_ENVS=%s' % ','.join(tox_envs_gen),
