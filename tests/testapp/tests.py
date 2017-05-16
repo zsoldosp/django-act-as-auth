@@ -1,4 +1,5 @@
 import django
+from django.core.exceptions import ValidationError
 from django.utils.six.moves.urllib import parse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
@@ -190,6 +191,11 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
         self.assertEqual(
             user, self.authenticate(
                 username='admin/user', password='admin password'))
+
+    def test_username_with_more_than_one_sepchar_raises_validationerror(self):
+        create_user(username='admin', password='admin password')
+        with self.assertRaises(ValidationError):
+            self.authenticate(username='admin//foo', password='admin password')
 
     def test_cannot_become_nonexistent_user(self):
         create_user(username='admin', password='password')
