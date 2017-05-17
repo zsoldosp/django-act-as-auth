@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import django
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import auth
-from django.core.exceptions import ValidationError
 
 _authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
+log = logging.getLogger(__name__)
 
 
 class FilteredModelBackend(ModelBackend):
@@ -49,6 +51,8 @@ class ActAsBackend(object):
     def is_act_as_username(cls, username):
         if not username:
             return False
+        if username.count(ActAsBackend.sepchar) > 1:
+            log.warn(cls.too_many_sepchar_msg)
         return cls.sepchar in username
 
     if _authenticate_needs_request_arg:
@@ -67,10 +71,12 @@ class ActAsBackend(object):
         assert password is not None
         if not self.is_act_as_username(username):
             return None
-        self.fail_unless_valid_act_as_username(username)
+        try:
+            auth_username, act_as_username = username.split(self.sepchar)
+        except ValueError:
+            return None
         for backend in auth.get_backends():
             if not isinstance(backend, ActAsBackend):
-                auth_username, act_as_username = username.split(self.sepchar)
                 auth_user = backend.authenticate(
                     username=auth_username, password=password, **kwargs)
                 if auth_user:
@@ -85,10 +91,6 @@ class ActAsBackend(object):
             raise ValueError(
                 'There should be exactly one AAA backend configured, '
                 'but there were {}'.format(aaa_backends))
-
-    def fail_unless_valid_act_as_username(self, username):
-        if username.count(ActAsBackend.sepchar) > 1:
-            raise ValidationError(self.too_many_sepchar_msg)
 
     def get_act_as_user(self, auth_user, act_as_username):
         if auth_user.username != act_as_username:
