@@ -194,8 +194,10 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
 
     def test_username_with_more_than_one_sepchar_raises_validationerror(self):
         create_user(username='admin', password='admin password')
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(ValidationError) as e:
             self.authenticate(username='admin//foo', password='admin password')
+        self.assertEqual(e.exception.message,
+                         ActAsBackend.too_many_sepchar_msg)
 
     def test_cannot_become_nonexistent_user(self):
         create_user(username='admin', password='password')

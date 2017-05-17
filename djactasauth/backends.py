@@ -2,6 +2,7 @@
 import django
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import auth
+from django.core.exceptions import ValidationError
 
 _authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
 
@@ -41,6 +42,8 @@ class FilteredModelBackend(ModelBackend):
 class ActAsBackend(object):
 
     sepchar = '/'
+    too_many_sepchar_msg = 'Username holds more than one separation char "{}"'\
+        '.'.format(sepchar)
 
     @classmethod
     def is_act_as_username(cls, username):
@@ -64,6 +67,7 @@ class ActAsBackend(object):
         assert password is not None
         if not self.is_act_as_username(username):
             return None
+        self.fail_unless_valid_act_as_username(username)
         for backend in auth.get_backends():
             if not isinstance(backend, ActAsBackend):
                 auth_username, act_as_username = username.split(self.sepchar)
@@ -81,6 +85,10 @@ class ActAsBackend(object):
             raise ValueError(
                 'There should be exactly one AAA backend configured, '
                 'but there were {}'.format(aaa_backends))
+
+    def fail_unless_valid_act_as_username(self, username):
+        if username.count(ActAsBackend.sepchar) > 1:
+            raise ValidationError(self.too_many_sepchar_msg)
 
     def get_act_as_user(self, auth_user, act_as_username):
         if auth_user.username != act_as_username:
