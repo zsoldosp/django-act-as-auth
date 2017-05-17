@@ -1,5 +1,4 @@
 import django
-from django.core.exceptions import ValidationError
 from django.utils.six.moves.urllib import parse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
@@ -192,12 +191,13 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
             user, self.authenticate(
                 username='admin/user', password='admin password'))
 
-    def test_username_with_more_than_one_sepchar_raises_validationerror(self):
+    @patch("djactasauth.backends.log")
+    def test_usernames_with_multiple_sepchars_trigger_log_warning(self,
+                                                                  mock_log):
         create_user(username='admin', password='admin password')
-        with self.assertRaises(ValidationError) as e:
-            self.authenticate(username='admin//foo', password='admin password')
-        self.assertEqual(e.exception.message,
-                         ActAsBackend.too_many_sepchar_msg)
+        self.assertEqual(None, self.authenticate(username='admin/user/',
+                                                 password='admin password'))
+        mock_log.warn.assert_called_with(ActAsBackend.too_many_sepchar_msg)
 
     def test_cannot_become_nonexistent_user(self):
         create_user(username='admin', password='password')
