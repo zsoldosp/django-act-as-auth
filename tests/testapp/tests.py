@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 from djactasauth.backends import \
     FilteredModelBackend, ActAsBackend, OnlySuperuserCanActAsBackend
 from djactasauth.util import act_as_login_url, get_login_url
-from testapp.sixmock import patch
+from testapp.sixmock import patch, call
 
 django_11_or_later = django.VERSION[:2] >= (1, 11)
 
@@ -194,10 +194,17 @@ class ActAsBackendAuthenticateTestCase(TransactionTestCase):
     @patch("djactasauth.backends.log")
     def test_usernames_with_multiple_sepchars_trigger_log_warning(self,
                                                                   mock_log):
-        create_user(username='admin', password='admin password')
+        create_user(username='admin', password='foo')
         self.assertEqual(None, self.authenticate(username='admin/user/',
-                                                 password='admin password'))
-        mock_log.warn.assert_called_with(ActAsBackend.too_many_sepchar_msg)
+                                                 password='foo'))
+        self.assertEqual(None, self.authenticate(username='admin//user',
+                                                 password='foo'))
+        self.assertEqual(None, self.authenticate(username='admin/us/er',
+                                                 password='foo'))
+        self.assertEqual(None, self.authenticate(username='/admin/user',
+                                                 password='foo'))
+        calls = [call(ActAsBackend.too_many_sepchar_msg) for i in range(4)]
+        mock_log.warn.assert_has_calls(calls)
 
     def test_cannot_become_nonexistent_user(self):
         create_user(username='admin', password='password')
