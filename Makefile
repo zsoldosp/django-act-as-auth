@@ -47,10 +47,11 @@ clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
+	find . -name '__pycache__' -type d -exec rm -rf {} +
 
 lint:
-	flake8 tests
-	flake8 djactasauth --max-complexity=6
+	flake8 tests --isolated
+	flake8 djactasauth --isolated --max-complexity=6
 
 test:
 	python manage.py test testapp --traceback
