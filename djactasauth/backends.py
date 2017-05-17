@@ -75,13 +75,14 @@ class ActAsBackend(object):
             auth_username, act_as_username = username.split(self.sepchar)
         except ValueError:
             return None
-        for backend in auth.get_backends():
-            if not isinstance(backend, ActAsBackend):
-                auth_user = backend.authenticate(
-                    username=auth_username, password=password, **kwargs)
-                if auth_user:
-                    return self.get_act_as_user(
-                        auth_user=auth_user, act_as_username=act_as_username)
+        backends = [b for b in auth.get_backends() if not
+                    isinstance(b, ActAsBackend)]
+        for backend in backends:
+            auth_user = backend.authenticate(
+                username=auth_username, password=password, **kwargs)
+            if auth_user:
+                return self.get_act_as_user(
+                    auth_user=auth_user, act_as_username=act_as_username)
 
     def fail_unless_one_aaa_backend_is_configured(self):
         aaa_backends = list(
