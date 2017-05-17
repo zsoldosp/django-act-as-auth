@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import django
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import auth
 
 _authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
+log = logging.getLogger(__name__)
 
 
 class FilteredModelBackend(ModelBackend):
@@ -41,11 +44,15 @@ class FilteredModelBackend(ModelBackend):
 class ActAsBackend(object):
 
     sepchar = '/'
+    too_many_sepchar_msg = 'Username holds more than one separation char "{}"'\
+        '.'.format(sepchar)
 
     @classmethod
     def is_act_as_username(cls, username):
         if not username:
             return False
+        if username.count(ActAsBackend.sepchar) > 1:
+            log.warn(cls.too_many_sepchar_msg)
         return cls.sepchar in username
 
     if _authenticate_needs_request_arg:
@@ -64,14 +71,18 @@ class ActAsBackend(object):
         assert password is not None
         if not self.is_act_as_username(username):
             return None
-        for backend in auth.get_backends():
-            if not isinstance(backend, ActAsBackend):
-                auth_username, act_as_username = username.split(self.sepchar)
-                auth_user = backend.authenticate(
-                    username=auth_username, password=password, **kwargs)
-                if auth_user:
-                    return self.get_act_as_user(
-                        auth_user=auth_user, act_as_username=act_as_username)
+        try:
+            auth_username, act_as_username = username.split(self.sepchar)
+        except ValueError:
+            return None
+        backends = [b for b in auth.get_backends() if not
+                    isinstance(b, ActAsBackend)]
+        for backend in backends:
+            auth_user = backend.authenticate(
+                username=auth_username, password=password, **kwargs)
+            if auth_user:
+                return self.get_act_as_user(
+                    auth_user=auth_user, act_as_username=act_as_username)
 
     def fail_unless_one_aaa_backend_is_configured(self):
         aaa_backends = list(
