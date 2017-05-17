@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+0.2.1
+-----
+
+   * bugfix: #12 - won't crash if username contains multiple act as auth
+     sepchars (e.g.: ``admin/user/`` (note the trailing slash)
+   * bugfix: #13 - wrapping ``act_as_auth_view`` in ``sensitive_post_parameters``
+
 0.2.0
 -----
 
