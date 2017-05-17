@@ -53,6 +53,7 @@ class ActAsBackend(object):
             return False
         if username.count(ActAsBackend.sepchar) > 1:
             log.warn(cls.too_many_sepchar_msg)
+            return False
         return cls.sepchar in username
 
     if _authenticate_needs_request_arg:
@@ -71,10 +72,7 @@ class ActAsBackend(object):
         assert password is not None
         if not self.is_act_as_username(username):
             return None
-        try:
-            auth_username, act_as_username = username.split(self.sepchar)
-        except ValueError:
-            return None
+        auth_username, act_as_username = username.split(self.sepchar)
         backends = [b for b in auth.get_backends() if not
                     isinstance(b, ActAsBackend)]
         for backend in backends:
