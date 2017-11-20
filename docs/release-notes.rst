@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+0.3.0
+-----
+
+   * drop support for deprecated python and django versions
+   * conform to latest flake8
+
 0.2.1
 -----
 
