@@ -14,12 +14,6 @@ Django Versions Support Philosophy
 
 The project aims to support the versions Django itself supports.
 
-Just because Django itself doesn't support a version doesn't mean
-that the project will drop support for that. However, support for
-these Django/Python versions can be dropped any time without prior
-notice. Usually this would be because of a new Django relase that
-would require bending over backwards to support older versions.
-
 Supported version of djactasauth
 --------------------------------
 
