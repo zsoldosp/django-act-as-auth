@@ -1,4 +1,3 @@
-import inspect
 import django
 from django.utils.six.moves.urllib import parse
 from django.contrib.auth.backends import ModelBackend
@@ -7,12 +6,10 @@ from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
-from django.views.decorators.debug import sensitive_post_parameters
 
 from djactasauth.backends import \
     FilteredModelBackend, ActAsBackend, OnlySuperuserCanActAsBackend
 from djactasauth.util import act_as_login_url, get_login_url
-from djactasauth.views import act_as_login_view
 from testapp.sixmock import patch, call
 
 django_11_or_later = django.VERSION[:2] >= (1, 11)
@@ -338,17 +335,6 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         form = response.context['form']
         self.assertTrue(
             isinstance(form, AuthenticationForm), type(form).__mro__)
-
-    @patch('django.contrib.auth.views.login')
-    def test_act_as_login_view_protects_sensitive_vars(self, mocked_login):
-        act_as_login_fpath = inspect.getsourcefile(act_as_login_view)
-        spp_fpath = inspect.getsourcefile(sensitive_post_parameters)
-        self.assertEqual(act_as_login_fpath, spp_fpath)
-        request = django.http.HttpRequest()
-        act_as_login_view(request=request)
-        self.assertEqual(1, mocked_login.call_count)
-        self.assertEqual(
-            ('password',), request.sensitive_post_parameters)
 
     def test_successful_act_as_login_fires_signal_with_act_as_user(self):
         logged_in_users = []
