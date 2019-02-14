@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.six.moves.urllib import parse
 from djactasauth.backends import ActAsBackend
 
