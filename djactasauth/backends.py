@@ -26,8 +26,8 @@ class FilteredModelBackend(ModelBackend):
                 username=username, password=password, **kwargs)
 
     def _authenticate(self, **kwargs):
-            user = super(FilteredModelBackend, self).authenticate(**kwargs)
-            return self.filter_user(user)
+        user = super(FilteredModelBackend, self).authenticate(**kwargs)
+        return self.filter_user(user)
 
     def filter_user(self, user):
         if not user:
