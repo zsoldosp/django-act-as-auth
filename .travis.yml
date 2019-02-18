@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 before_install:
   - sudo apt-get -qq update
@@ -14,5 +15,7 @@ matrix:
       env: TOX_ENVS=py35-django111,py35-django20,py35-django21
     - python: "3.6"
       env: TOX_ENVS=py36-django111,py36-django20,py36-django21
+    - python: "3.7"
+      env: TOX_ENVS=py37-django111,py37-django20,py37-django21
 script:
   - tox -e $TOX_ENVS
