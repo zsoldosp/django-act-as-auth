@@ -3,7 +3,7 @@ Django Act As Auth Backend
 
 .. sales pitch start
 
-Django authentication backend that allows one to login as someone else
+Django authentication back-end that allows one to login as someone else
 (an existing Django user allowed to login) without having to know their
 password.
 
@@ -39,13 +39,13 @@ Configure the custom login view to take advantage of all the features
 in your ``urls.py``::
 
     from django.conf.urls import patterns, url
-    from djactasauth.views import act_as_login_view
+    from djactasauth.views import PrefillLoginView
     from testapp.views import whoami
 
 
     urlpatterns = patterns(
         '',
-        url(r'^login/$', act_as_login_view, {}, 'login'),
+        url(r'^login/$', PrefillLoginView.as_view(), {}, 'login'),
     )
 
 
