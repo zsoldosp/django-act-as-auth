@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
 
-import django
 from django.contrib.auth.backends import ModelBackend
 from django.contrib import auth
 
-_authenticate_needs_request_arg = django.VERSION[:2] >= (1, 11)
 log = logging.getLogger(__name__)
 
 
@@ -14,20 +12,10 @@ class FilteredModelBackend(ModelBackend):
         user = super(FilteredModelBackend, self).get_user(user_id)
         return self.filter_user(user)
 
-    if _authenticate_needs_request_arg:
-        def authenticate(self,
-                         request, username=None, password=None, **kwargs):
-            return self._authenticate(
-                request=request, username=username, password=password,
-                **kwargs)
-    else:
-        def authenticate(self, username=None, password=None, **kwargs):
-            return self._authenticate(
-                username=username, password=password, **kwargs)
-
-    def _authenticate(self, **kwargs):
-            user = super(FilteredModelBackend, self).authenticate(**kwargs)
-            return self.filter_user(user)
+    def authenticate(self, request, **kwargs):
+        user = super(FilteredModelBackend, self).authenticate(
+            request=request, **kwargs)
+        return self.filter_user(user)
 
     def filter_user(self, user):
         if not user:
@@ -56,18 +44,7 @@ class ActAsBackend(object):
             return False
         return cls.sepchar in username
 
-    if _authenticate_needs_request_arg:
-        def authenticate(self,
-                         request, username=None, password=None, **kwargs):
-            return self._authenticate(
-                request=request, username=username, password=password,
-                **kwargs)
-    else:
-        def authenticate(self, username=None, password=None, **kwargs):
-            return self._authenticate(
-                username=username, password=password, **kwargs)
-
-    def _authenticate(self, username=None, password=None, **kwargs):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         self.fail_unless_one_aaa_backend_is_configured()
         assert password is not None
         if not self.is_act_as_username(username):
@@ -77,7 +54,8 @@ class ActAsBackend(object):
                     isinstance(b, ActAsBackend)]
         for backend in backends:
             auth_user = backend.authenticate(
-                username=auth_username, password=password, **kwargs)
+                request=request, username=auth_username, password=password,
+                **kwargs)
             if auth_user:
                 return self.get_act_as_user(
                     auth_user=auth_user, act_as_username=act_as_username)

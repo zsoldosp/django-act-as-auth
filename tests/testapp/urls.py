@@ -1,11 +1,11 @@
 from django.conf.urls import url
-from djactasauth.views import act_as_login_view
+from djactasauth.views import PrefillLoginView
 from testapp.views import whoami
 import django
 
 
 urls = [
-    url(r'^login/$', act_as_login_view, {}, 'login'),
+    url(r'^login/$', PrefillLoginView.as_view(), {}, 'login'),
     url(r'^whoami/$', whoami),
 ]
 if django.VERSION[:2] < (1, 8):
