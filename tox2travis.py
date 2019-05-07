@@ -56,8 +56,8 @@ class ToxToTravis:
             'matrix:',
             '  include:',
         ]
-        for tox_py, djangos in self.tox_py_to_djangos.items():
-            tox_envs_gen = ('-'.join((tox_py, d)) for d in djangos)
+        for tox_py, djangos in sorted(self.tox_py_to_djangos.items()):
+            tox_envs_gen = ('-'.join((tox_py, d)) for d in sorted(djangos))
             item = [
                 '    - python: "%s"' % self.tox2travis_py[tox_py],
                 '      env: TOX_ENVS=%s' % ','.join(tox_envs_gen),
