@@ -29,7 +29,6 @@ ${TRAVIS_YML}: tox.ini ${TOX2TRAVIS}
 	test 0 -eq $$(${DIFF_CMD} | wc -l)
 
 clean: clean-build clean-python clean-tox
-	cd docs && make clean
 
 clean-build:
 	rm -fr build/
