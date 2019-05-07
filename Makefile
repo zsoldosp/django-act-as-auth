@@ -1,13 +1,14 @@
 TRAVIS_YML=.travis.yml
 TOX2TRAVIS=tox2travis.py
-.PHONY: clean-pyc clean-build docs clean-tox ${TRAVIS_YML} ci no-readme-errors
-PYPI_SERVER?=https://pypi.python.org/pypi
+.PHONY: clean-python clean-build docs clean-tox ${TRAVIS_YML} ci no-readme-errors
+PYPI_SERVER?=pypi
+GIT_REMOTE_NAME?=origin
 SHELL=/bin/bash
 VERSION=$(shell python -c"import djactasauth as m; print(m.__version__)")
 
 help:
 	@echo "clean-build - remove build artifacts"
-	@echo "clean-pyc - remove Python file artifacts"
+	@echo "clean-python - remove Python file artifacts"
 	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
 	@echo "testall - run tests on every Python version with tox"
@@ -27,16 +28,8 @@ ${TRAVIS_YML}: tox.ini ${TOX2TRAVIS}
 	${DIFF_CMD}; echo $$?  # FYI
 	test 0 -eq $$(${DIFF_CMD} | wc -l)
 
-clean: clean-build clean-pyc clean-tox
+clean: clean-build clean-python clean-tox
 	cd docs && make clean
-
-no-readme-errors:
-	rst2html.py README.rst > /dev/null 2> $@
-	cat $@
-	test 0 -eq `cat $@ | wc -l`
-
-docs:
-	cd docs && make html
 
 clean-build:
 	rm -fr build/
@@ -44,11 +37,14 @@ clean-build:
 	find -name *.egg-info -type d | xargs rm -rf
 	cd docs && make clean
 
-clean-pyc:
+clean-python:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -type d -exec rm -rf {} +
+
+clean-tox:
+	if [[ -d .tox ]]; then rm -r .tox; fi
 
 lint:
 	flake8 tests --isolated
@@ -56,9 +52,6 @@ lint:
 
 test:
 	python manage.py test testapp --traceback
-
-clean-tox:
-	if [[ -d .tox ]]; then rm -r .tox; fi
 
 test-all:
 	tox
@@ -68,6 +61,14 @@ coverage:
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
+
+docs:
+	make -C docs html
+
+no-readme-errors:
+	rst2html.py README.rst > /dev/null 2> $@
+	cat $@
+	test 0 -eq `cat $@ | wc -l`
 
 release: TAG:=v${VERSION}
 release: exit_code:=$(shell git ls-remote origin | grep -q tags/${TAG}; echo $$?)
