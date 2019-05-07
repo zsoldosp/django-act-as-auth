@@ -35,7 +35,6 @@ clean-build:
 	rm -fr build/
 	rm -fr dist/
 	find -name *.egg-info -type d | xargs rm -rf
-	cd docs && make clean
 
 clean-python:
 	find . -name '*.pyc' -exec rm -f {} +
