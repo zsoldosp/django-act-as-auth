@@ -85,6 +85,8 @@ Pull Requests
 
 * if you are not there already, add yourself to the `Authors <authors>`_ file
 
+To trigger packaging, run `make release` on the master branch.
+
 Setting up all Python versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

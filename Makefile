@@ -3,6 +3,7 @@ TOX2TRAVIS=tox2travis.py
 .PHONY: clean-pyc clean-build docs clean-tox ${TRAVIS_YML} ci no-readme-errors
 PYPI_SERVER?=https://pypi.python.org/pypi
 SHELL=/bin/bash
+VERSION=$(shell python -c"import djactasauth as m; print(m.__version__)")
 
 help:
 	@echo "clean-build - remove build artifacts"
@@ -68,21 +69,11 @@ coverage:
 	coverage html
 	open htmlcov/index.html
 
-tag: VERSION=$(shell python -c"import djactasauth as m; print(m.__version__)")
-tag: TAG:=${VERSION}
-tag: exit_code:=$(shell git ls-remote origin | grep -q tags/${TAG}; echo $$?)
-tag:
+release: TAG:=v${VERSION}
+release: exit_code:=$(shell git ls-remote origin | grep -q tags/${TAG}; echo $$?)
+release:
 ifeq ($(exit_code),0)
 	@echo "Tag ${TAG} already present"
 else
 	git tag -a ${TAG} -m"${TAG}"; git push --tags origin
 endif
-
-release: clean tag
-	echo "if the release fails, setup a ~/pypirc file as per https://docs.python.org/2/distutils/packageindex.html#pypirc"
-	python setup.py register -r ${PYPI_SERVER}
-	python setup.py sdist upload -r ${PYPI_SERVER}
-
-sdist: clean
-	python setup.py sdist
-	ls -l dist
