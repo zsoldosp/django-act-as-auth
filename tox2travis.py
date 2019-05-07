@@ -48,7 +48,6 @@ class ToxToTravis:
     def matrix(self):
         self.tox2travis_py = dict(
             py27='2.7',
-            py34='3.4',
             py35='3.5',
             py36='3.6',
             py37='3.7',
@@ -57,8 +56,8 @@ class ToxToTravis:
             'matrix:',
             '  include:',
         ]
-        for tox_py, djangos in sorted(self.tox_py_to_djangos.items()):
-            tox_envs_gen = ('-'.join((tox_py, d)) for d in sorted(djangos))
+        for tox_py, djangos in self.tox_py_to_djangos.items():
+            tox_envs_gen = ('-'.join((tox_py, d)) for d in djangos)
             item = [
                 '    - python: "%s"' % self.tox2travis_py[tox_py],
                 '      env: TOX_ENVS=%s' % ','.join(tox_envs_gen),
@@ -70,6 +69,18 @@ class ToxToTravis:
         return [
             'script:',
             '  - tox -e $TOX_ENVS',
+            'before_deploy: "make clean"',
+            'deploy:',
+            '  provider: pypi',
+            '  user: "paessler_bis"',
+            '  password:',
+            '    secure: "N+ark/iPL3Y8/ew9i3y0IQITVFRN6AQmUirG6YBIaNt5jw+N081qYuPtco7AwcbOWBiYz9JX6k6xfFcWGw0+bDUkpGZQkVgBdqAaQUj6kEzpyNU5vsyHY7jqBAYdkjReTXf7s+ZtNCIs/qLuhgipYIOEwCtv5cUkC5WMFa1/wIWKq7LwkS6TmrjbFxC0+fXna9xwa6hdUSkz3t0B8d81tEln5TbJovlViJObM1GqxQPrU8UUoGvdOWzaTdLLWB70Z1M70Gy+XwPba+Ce6tJsRzoKpELCEYuNyTPivPAbNmzqpUB+LzBNg90X7WPO2cfI1mlHBOOV1l8ogac/wEJvxQyNMg08z07JQUJfg6sbBsQMSc7EWj46owCnvvPZ6xQ+wkz3h+HEwYTxTFuoO/9/2LIpXvMqmO6n7WJ/jpBlJA/2ejWX1Eb8EXWBsNm6/8EVZLz5JSnFhyxZ6XxB83rsGGSGtQy4CR2JZisies8RqWNATF+6UGXd4ydPi9WXr4/BsPRMnObWAZrFUzzqgoLpkKQ/YTSqn55Id0PfL9veCWVwrWel5fvBB8Pkad3eG+VVhszgTzlcQyni8hZbI1StCpLIjGqWRxhp7F7fPBs+MBUKTX7P/wrCwAhn67i54rzvdc0Tk1BQuBVa7b6T+o1dO9xtMnz811Pj817bhF9oVvM="',  # noqa: E501
+            '  distributions: sdist bdist_wheel',
+            '  on:',
+            '    tags: true',
+            '    branch:',
+            '      - master',
+            '      - /v?(\d+\.)?(\d+\.)?(\*|\d+)$/',
         ]
 
 
