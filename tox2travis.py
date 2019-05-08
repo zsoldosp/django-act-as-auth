@@ -78,9 +78,8 @@ class ToxToTravis:
             '  distributions: sdist bdist_wheel',
             '  on:',
             '    tags: true',
-            '    branch:',
-            '      - master',
-            '      - /v?(\d+\.)?(\d+\.)?(\*|\d+)$/',
+            '    branch: master',
+            '  skip_existing: true',
         ]
 
 
