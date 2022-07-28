@@ -1,6 +1,9 @@
 Django Act As Auth Backend
 ==========================
 
+:WARNING:
+       This project is currently frozen and will not longer be maintained. If there is someone interested in continuing to maintain this project please contact: security@paessler.com . 
+
 .. sales pitch start
 
 Django authentication back-end that allows one to login as someone else
