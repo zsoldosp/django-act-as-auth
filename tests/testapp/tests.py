@@ -1,5 +1,5 @@
 import django
-from django.utils.six.moves.urllib import parse
+import urllib.parse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
@@ -370,7 +370,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assert_logged_in_user_on_next_request(
             username='user', password='user', display_user='user',
             **{REDIRECT_FIELD_NAME: '/foo/'})
-        redir_to = parse.urlparse(self.login_post_response['Location'])
+        redir_to = urllib.parse.urlparse(self.login_post_response['Location'])
         self.assertEqual('/foo/', redir_to.path)
 
     def test_on_post_form_has_access_to_request(self):

@@ -1,5 +1,5 @@
 from django.urls import reverse
-from django.utils.six.moves.urllib import parse
+import urllib.parse
 from djactasauth.backends import ActAsBackend
 
 
@@ -9,4 +9,4 @@ def act_as_login_url(auth, act_as, **query):
 
 
 def get_login_url(**query):
-    return reverse('login') + '?' + parse.urlencode(query)
+    return reverse('login') + '?' + urllib.parse.urlencode(query)
