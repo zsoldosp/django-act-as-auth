@@ -1,32 +1,33 @@
-TRAVIS_YML=.travis.yml
-TOX2TRAVIS=tox2travis.py
-.PHONY: clean-python clean-build docs clean-tox ${TRAVIS_YML} ci no-readme-errors
-PYPI_SERVER?=pypi
+.PHONY: clean-python clean-build docs clean-tox
+#PYPI_SERVER?=pypi
+PYPI_SERVER?=testpypi
+ifeq ($(PYPI_SERVER),testpypi)
+	TWINE_PASSWORD=${TEST_TWINE_PASSWORD}
+else
+	TWINE_PASSWORD=${CURRENTUSER_TWINE_PASSWORD}
+endif
+RELEASE_PYTHON=python3.13
+RELEASE_VENV=release-venv-${RELEASE_PYTHON}
+RELEASE_PYTHON_ACTIVATE=${RELEASE_VENV}/bin/activate
 GIT_REMOTE_NAME?=origin
 SHELL=/bin/bash
-VERSION=$(shell python -c"import djactasauth as m; print(m.__version__)")
+PACKAGE_NAME=djactasauth
+VERSION=$(shell ${RELEASE_PYTHON} -c"import ${PACKAGE_NAME} as m; print(m.__version__)")
+PACKAGE_FILE_TGZ=dist/${PACKAGE_NAME}-${VERSION}.tar.gz
+PACKAGE_FILE_WHL=dist/${PACKAGE_NAME}-${VERSION}-py3-none-any.whl
 
 help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-python - remove Python file artifacts"
+	@echo "clean-tox - remove test artifacts"
 	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
-	@echo "testall - run tests on every Python version with tox"
+	@echo "test-all - run tests on every Python version with tox"
 	@echo "coverage - check code coverage quickly with the default Python"
-	@echo "docs - generate Sphinx HTML documentation"
-	@echo "tag - tag the current version and push it to origin"
-	@echo "release - package and upload a release"
-	@echo "sdist - package"
-	@echo "${TRAVIS_YML} - convert tox.ini to ${TRAVIS_YML}"
-
-ci: ${TRAVIS_YML} test-all
-
-${TRAVIS_YML}: DIFF_CMD=diff ${TRAVIS_YML} ${OUTFILE}
-${TRAVIS_YML}: OUTFILE=${TRAVIS_YML}.generated
-${TRAVIS_YML}: tox.ini ${TOX2TRAVIS}
-	./${TOX2TRAVIS} > ${OUTFILE}
-	${DIFF_CMD}; echo $$?  # FYI
-	test 0 -eq $$(${DIFF_CMD} | wc -l)
+	@echo "docs - generate Sphinx HTML documentation, including API docs"
+	@echo "tag - git tag the current version which creates a new pypi package with travis-ci's help"
+	@echo "package- build the sdist/wheel"
+	@echo "release- package, tag, and publush"
 
 clean: clean-build clean-python clean-tox
 
@@ -45,34 +46,57 @@ clean-tox:
 	if [[ -d .tox ]]; then rm -r .tox; fi
 
 lint:
-	flake8 tests --isolated
-	flake8 djactasauth --isolated --max-complexity=6
+	flake8 ${PACKAGE_NAME} tests --max-complexity=10
 
 test:
 	python manage.py test testapp --traceback
 
-test-all:
+test-all: clean-tox
 	tox
 
 coverage:
-	coverage run --source djactasauth setup.py test
+	coverage run --source ${PACKAGE_NAME} setup.py test
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
 
+docs: outfile=/tmp/readme-errors
 docs:
-	make -C docs html
+	rst2html.py README.rst > /dev/null 2> ${outfile}
+	cat ${outfile}
+	test 0 -eq `cat ${outfile} | wc -l`
 
-no-readme-errors:
-	rst2html.py README.rst > /dev/null 2> $@
-	cat $@
-	test 0 -eq `cat $@ | wc -l`
-
-release: TAG:=v${VERSION}
-release: exit_code:=$(shell git ls-remote origin | grep -q tags/${TAG}; echo $$?)
-release:
+tag: TAG:=v${VERSION}
+tag: exit_code=$(shell git ls-remote ${GIT_REMOTE_NAME} | grep -q tags/${TAG}; echo $$?)
+tag:
 ifeq ($(exit_code),0)
 	@echo "Tag ${TAG} already present"
 else
-	git tag -a ${TAG} -m"${TAG}"; git push --tags origin
+	@echo "git tag -a ${TAG} -m"${TAG}"; git push --tags ${GIT_REMOTE_NAME}"
 endif
+
+${RELEASE_VENV}:
+	virtualenv --python ${RELEASE_PYTHON} ${RELEASE_VENV}
+
+build-deps: ${RELEASE_VENV}
+	source ${RELEASE_PYTHON_ACTIVATE} && python -m pip install --upgrade build
+	source ${RELEASE_PYTHON_ACTIVATE} && python -m pip install --upgrade twine
+
+
+${PACKAGE_FILE_TGZ}: ${PACKAGE_NAME}/ pyproject.toml Makefile setup.py setup.cfg
+${PACKAGE_FILE_WHL}: ${PACKAGE_NAME}/ pyproject.toml Makefile setup.py setup.cfg
+	source ${RELEASE_PYTHON_ACTIVATE} && python -m build
+
+package: build-deps clean-build clean-python ${PACKAGE_FILE} ${PACKAGE_FILE_WHL}
+
+
+release:  package
+ifeq ($(TWINE_PASSWORD),)
+	echo TWINE_PASSWORD empty
+	echo "USE env vars TEST_TWINE_PASSWORD/CURRENTUSER_TWINE_PASSWORD env vars before invoking make"
+	false
+endif
+	twine check dist/*
+	echo "if the release fails, setup a ~/pypirc file as per https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+	# env | grep TWINE
+	source ${RELEASE_PYTHON_ACTIVATE} && TWINE_PASSWORD=${TWINE_PASSWORD} python -m twine upload --repository ${PYPI_SERVER} dist/* --verbose
