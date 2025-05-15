@@ -1,5 +1,4 @@
-import django
-from django.utils.six.moves.urllib import parse
+import urllib.parse
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.auth import signals as auth_signals, REDIRECT_FIELD_NAME
@@ -12,8 +11,6 @@ from djactasauth.backends import \
 from djactasauth.util import act_as_login_url, get_login_url
 from testapp.sixmock import patch, call
 
-django_11_or_later = django.VERSION[:2] >= (1, 11)
-
 
 def create_user(
         username, password='password', is_superuser=False, is_staff=False):
@@ -24,11 +21,8 @@ def create_user(
 
 
 def auth_through_backend(backend, **kwargs):
-    if django_11_or_later:
-        args = [None]  # request
-    else:
-        args = []
-    return backend.authenticate(*args, **kwargs)
+    request = None
+    return backend.authenticate(request, **kwargs)
 
 
 class FilteredBackendTestCase(TransactionTestCase):
@@ -88,8 +82,7 @@ class TestableBackend(object):
         self.reset()
 
     def authenticate(self, *a, **kw):
-        if django_11_or_later:
-            kw.pop('request')
+        kw.pop('request')
         self.calls.append((a, kw))
         return self.authenticated_user
 
@@ -99,10 +92,8 @@ class TestableBackend(object):
 
 
 def patched_get_backends(backends):
-    method_to_patch = \
-        '_get_backends' if django_11_or_later else 'get_backends'
     return patch(
-        'django.contrib.auth.{}'.format(method_to_patch),
+        'django.contrib.auth._get_backends',
         return_value=backends
     )
 
@@ -370,7 +361,7 @@ class EndToEndActAsThroughFormAndView(TransactionTestCase):
         self.assert_logged_in_user_on_next_request(
             username='user', password='user', display_user='user',
             **{REDIRECT_FIELD_NAME: '/foo/'})
-        redir_to = parse.urlparse(self.login_post_response['Location'])
+        redir_to = urllib.parse.urlparse(self.login_post_response['Location'])
         self.assertEqual('/foo/', redir_to.path)
 
     def test_on_post_form_has_access_to_request(self):

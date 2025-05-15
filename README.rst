@@ -1,9 +1,6 @@
 Django Act As Auth Backend
 ==========================
 
-:WARNING:
-       This project is currently frozen and will not longer be maintained. If there is someone interested in continuing to maintain this project please contact: security@paessler.com . 
-
 .. sales pitch start
 
 Django authentication back-end that allows one to login as someone else
@@ -13,9 +10,6 @@ password.
 Great for customer support and testing scenarios!
 
 .. sales pitch end
-
-.. image:: https://travis-ci.org/PaesslerAG/django-act-as-auth.svg?branch=master
-        :target: https://travis-ci.org/PaesslerAG/django-act-as-auth
 
 .. image:: https://readthedocs.org/projects/django-act-as-auth/badge/?version=latest
         :target: http://django-act-as-auth.readthedocs.org/
@@ -55,7 +49,9 @@ in your ``urls.py``::
 Then you can log in with username ``your_superuser_name/customer`` and password
 ``yourpassword``.
 
+The full `documentation <https://django-act-as-auth.readthedocs.io/en/latest/>`_ including release notes on read the docs.
 .. quickstart end
+
 
 .. contributing start
 
@@ -64,13 +60,13 @@ Contributing
 
 As an open source project, we welcome contributions.
 
-The code lives on `github <https://github.com/PaesslerAG/django-act-as-auth>`_.
+The code lives on `github <https://github.com/zsoldosp/django-act-as-auth>`_.
 
 Reporting issues/improvements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Please open an `issue on github <https://github.com/PaesslerAG/django-act-as-auth/issues/>`_
-or provide a `pull request <https://github.com/PaesslerAG/django-act-as-auth/pulls/>`_
+Please open an `issue on github <https://github.com/zsoldosp/django-act-as-auth/issues/>`_
+or provide a `pull request <https://github.com/zsoldosp/django-act-as-auth/pulls/>`_
 whether for code or for the documentation.
 
 For non-trivial changes, we kindly ask you to open an issue, as it might be rejected.
@@ -98,10 +94,14 @@ Setting up all Python versions
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository ppa:fkrull/deadsnakes
     sudo apt-get update
-    for version in 3.5 3.6; do
+    for version in 3.9 3.10 3.11 3.12 3.13; do
       py=python$version
-      sudo apt-get -y install ${py} ${py}-dev
+      if ! which ${py}; then
+        sudo apt-get -y install ${py} ${py}-dev
+      fi
     done
+    sudo add-apt-repository --remove ppa:deadsnakes/ppa
+    sudo apt-get update
 
 Code of Conduct
 ~~~~~~~~~~~~~~~

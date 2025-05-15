@@ -1,58 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from setuptools import setup
 import os
-import sys
 
-import djactasauth
+use_unsupported_django = os.environ.get('DJANGO_ACT_AS_AUTH_USE_UNSUPPORTED_DJANGO', '0') == '1'
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+dependencies = ['Django'] if use_unsupported_django else ["Django>=4.2, <6.0"]
 
-version = djactasauth.__version__
 
-if sys.argv[-1] == 'publish':
-    os.system('make release')
-    sys.exit()
-
-description = \
-    'Django authentication backend allowing admins to login as another user'
-
-setup(
-    name='djactasauth',
-    description=description,
-    version=version,
-    author='Paessler AG',
-    url='https://github.com/PaesslerAG/django-act-as-auth',
-    packages=[
-        'djactasauth',
-    ],
-    include_package_data=True,
-    install_requires=[
-        'Django>=1.11.17,<2.0',
-        'Django>=2.1.8,<2.2;python_version>"3.4"',
-        'Django>=2.2.1,<2.3;python_version>"3.4"',
-    ],
-    license="BSD",
-    zip_safe=False,
-    keywords='django, authentication, act as, impersonation',
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Framework :: Django',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.1',
-        'Framework :: Django :: 2.2',
-    ],
-)
+if __name__ == "__main__":
+    setup(install_requires=dependencies)
