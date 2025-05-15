@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+0.6.0
+-----
+
+   * version upgrade release
+   * drop support for Django 1.11, 2.1, 2.2
+   * add support for Django 4.2, 5.1, 5.2
+   * drop support for Python 2.7, 3.5, 3.6, 3.7
+   * add support for Python 3.9, 3.10, 3.11, 3.12, 3.13
+
 0.3.0
 -----
 
