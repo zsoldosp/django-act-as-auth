@@ -49,7 +49,7 @@ in your ``urls.py``::
 Then you can log in with username ``your_superuser_name/customer`` and password
 ``yourpassword``.
 
-The full `documentation https://django-act-as-auth.readthedocs.io/en/latest/`_ including release notes on read the docs.
+The full `documentation <https://django-act-as-auth.readthedocs.io/en/latest/>`_ including release notes on read the docs.
 .. quickstart end
 
 
