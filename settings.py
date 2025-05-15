@@ -2,8 +2,6 @@
 import django
 
 DEBUG = True
-if django.VERSION[:2] < (1, 8):
-    TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {
