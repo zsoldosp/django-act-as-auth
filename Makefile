@@ -4,7 +4,7 @@ PYPI_SERVER?=testpypi
 ifeq ($(PYPI_SERVER),testpypi)
 	TWINE_PASSWORD=${TEST_TWINE_PASSWORD}
 else
-	TWINE_PASSWORD=${CURRENTUSER_TWINE_PASSWORD}
+	TWINE_PASSWORD=${ACTASAUTH_TWINE_PASSWORD}
 endif
 RELEASE_PYTHON=python3.13
 RELEASE_VENV=release-venv-${RELEASE_PYTHON}
@@ -93,7 +93,7 @@ package: build-deps clean-build clean-python ${PACKAGE_FILE} ${PACKAGE_FILE_WHL}
 release:  package
 ifeq ($(TWINE_PASSWORD),)
 	echo TWINE_PASSWORD empty
-	echo "USE env vars TEST_TWINE_PASSWORD/CURRENTUSER_TWINE_PASSWORD env vars before invoking make"
+	echo "USE env vars TEST_TWINE_PASSWORD/ACTASAUTH_TWINE_PASSWORD env vars before invoking make"
 	false
 endif
 	twine check dist/*
